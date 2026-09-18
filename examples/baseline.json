@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "previous_version": "1.2.3",
+  "current_version": "1.3.0",
+  "minimum_bump": "minor",
+  "minimum_version": "1.3.0",
+  "suggested_version": "1.3.0",
+  "review_required": false,
+  "review_bump": null,
+  "declared_version_sufficient": true,
+  "findings": [
+    {
+      "rule": "input.added",
+      "path": "/processes/main/inputs/main~1prefix",
+      "category": "interface",
+      "minimum_bump": "minor",
+      "review_required": false,
+      "message": "Public parameter added.",
+      "before": null,
+      "after": {
+        "id": "main/prefix",
+        "type": [
+          "null",
+          "string"
+        ],
+        "inputBinding": {
+          "position": 0
+        }
+      },
+      "before_present": false,
+      "after_present": true
+    }
+  ]
+}

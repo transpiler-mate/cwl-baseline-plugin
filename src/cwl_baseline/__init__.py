@@ -12,8 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""CWL Baseline Transpiler Mate Plugin Transpiler-Mate Plugin."""
+"""CWL contract baselining plugin for transpiler-mate-api."""
 
-from cwl_baseline.__about__ import __version__
+from .compare import baseline
+from .models import BaselineReport, Bump, Finding
+from .plugin import BaselineOptions, baseline_plugin
 
-__all__ = ["__version__"]
+__all__ = [
+    "BaselineOptions",
+    "BaselineReport",
+    "Bump",
+    "Finding",
+    "baseline",
+    "baseline_plugin",
+]

@@ -42,11 +42,12 @@ classifiers = [
 ]
 dependencies = [
   "transpiler-mate-api==1.0.0",
+  "semver>=3.0.4,<4",
   "loguru==0.7.3"
 ]
 
 [project.entry-points."transpiler_mate.plugins"]
-baseline = "cwl_baseline.plugin:baseline"
+baseline = "cwl_baseline.plugin:baseline_plugin"
 
 [project.urls]
 Homepage = "https://github.com/Transpiler-Mate/cwl-baseline-plugin"
@@ -124,6 +125,7 @@ python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
 [tool.hatch.envs.dev]
 skip-install = false
 dependencies = [
+  "pytest>=8.4,<10",
   "mypy>=2.3.0",
   "ruff>=0.16.0",
   "bandit>=1.9.4",
