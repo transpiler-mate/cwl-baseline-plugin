@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://Transpiler-Mate.github.io/cwl-baseline-plugin/how-to/use-cli/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Use the CLI - CWL Baseline Transpiler Mate Plugin</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Use the CLI";
+        var mkdocs_page_input_path = "how-to/use-cli.md";
+        var mkdocs_page_url = "/cwl-baseline-plugin/how-to/use-cli/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> CWL Baseline Transpiler Mate Plugin
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tutorials/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tutorials/first-steps/">First steps</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">How-to guides</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../install/">Install</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Use the CLI</a>
+    <ul class="current">
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/api/">API</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Explanation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../explanation/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../explanation/compatibility/">Compatibility policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../explanation/architecture/">Architecture</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">CWL Baseline Transpiler Mate Plugin</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">How-to guides</li>
+      <li class="breadcrumb-item active">Use the CLI</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Transpiler-Mate/cwl-baseline-plugin/edit/main/docs/how-to/use-cli.md">Edit on cwl-baseline-plugin</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <!--
+Copyright 2026 Transpiler-Mate
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<h1 id="run-a-baseline-and-enforce-it-in-ci">Run a baseline and enforce it in CI<a class="headerlink" href="#run-a-baseline-and-enforce-it-in-ci" title="Permanent link">&para;</a></h1>
+<p>The installed runtime exposes the plugin as <code>transpiler-mate baseline</code>. <code>SOURCE</code>
+is the current document; <code>--previous</code> identifies the previous release. Both
+locations must be accepted by the runtime resolver.</p>
+<div class="highlight"><pre><span></span><code>transpiler-mate<span class="w"> </span>baseline<span class="w"> </span>examples/current.cwl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--previous<span class="w"> </span>examples/previous.cwl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>baseline.json
+</code></pre></div>
+<p>The output directory must already exist. This writes the report without failing
+solely because the declared version is insufficient or review is unresolved.
+Resolution errors, invalid version metadata, and write errors still fail.</p>
+<p>Add <code>--check</code> for a CI gate:</p>
+<div class="highlight"><pre><span></span><code>transpiler-mate<span class="w"> </span>baseline<span class="w"> </span>examples/current.cwl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--previous<span class="w"> </span>examples/previous.cwl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>baseline.json<span class="w"> </span>--check
+</code></pre></div>
+<p>If review is unresolved or the version is insufficient, the plugin writes the
+report before raising <code>PluginFailureError</code>. Inspect the findings and assess the
+observable behavior of every review item. Then classify all reviewed changes
+with their highest necessary bump, for example:</p>
+<div class="highlight"><pre><span></span><code>transpiler-mate<span class="w"> </span>baseline<span class="w"> </span>examples/current.cwl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--previous<span class="w"> </span>examples/previous.cwl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>baseline.json<span class="w"> </span>--review-bump<span class="w"> </span>patch<span class="w"> </span>--check
+</code></pre></div>
+<p>Use <code>patch</code> only after establishing that all review findings are compatible fixes;
+choose <code>minor</code> for compatible features or <code>major</code> for breaking behavior.
+Classification cannot reduce a statically proven floor. Update the current
+release's version metadata when needed and rerun; the plugin does not edit it.</p>
+<p><code>--review-bump</code> maps to Python option <code>review_bump</code>. Run
+<code>transpiler-mate baseline --help</code> for the host's resolver/authentication options.
+See <a href="../../reference/api/">API and report reference</a> for all plugin options and
+<a href="../../explanation/compatibility/">compatibility policy</a> for the decision rules.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../install/" class="btn btn-neutral float-left" title="Install"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../reference/" class="btn btn-neutral float-right" title="Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Transpiler-Mate/cwl-baseline-plugin" class="fa fa-code-fork" style="color: #fcfcfc"> cwl-baseline-plugin</a>
+        </span>
+    
+    
+      <span><a href="../install/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../reference/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

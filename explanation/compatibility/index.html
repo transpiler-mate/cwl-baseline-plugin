@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://Transpiler-Mate.github.io/cwl-baseline-plugin/explanation/compatibility/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Compatibility policy - CWL Baseline Transpiler Mate Plugin</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Compatibility policy";
+        var mkdocs_page_input_path = "explanation/compatibility.md";
+        var mkdocs_page_url = "/cwl-baseline-plugin/explanation/compatibility/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> CWL Baseline Transpiler Mate Plugin
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tutorials/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tutorials/first-steps/">First steps</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">How-to guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how-to/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how-to/install/">Install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how-to/use-cli/">Use the CLI</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/api/">API</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Explanation</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Compatibility policy</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#compatibility-direction">Compatibility direction</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#public-surface-and-assumptions">Public surface and assumptions</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#static-rules">Static rules</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#omission-and-defaults">Omission and defaults</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interface-environment-and-behavior">Interface, environment, and behavior</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#file-constraints">File constraints</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#requirements-and-hints">Requirements and hints</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#steps-and-behavior">Steps and behavior</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#version-aggregation-and-review">Version aggregation and review</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../architecture/">Architecture</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">CWL Baseline Transpiler Mate Plugin</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Explanation</li>
+      <li class="breadcrumb-item active">Compatibility policy</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Transpiler-Mate/cwl-baseline-plugin/edit/main/docs/explanation/compatibility.md">Edit on cwl-baseline-plugin</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <!--
+Copyright 2026 Transpiler-Mate
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<h1 id="compatibility-and-version-policy">Compatibility and version policy<a class="headerlink" href="#compatibility-and-version-policy" title="Permanent link">&para;</a></h1>
+<p>The analyzer asks whether the current Process can replace the previous release
+for existing callers and downstream consumers. Inputs and outputs form its
+public signature; workflow steps usually implement that signature. Identical
+signatures do not establish identical behavior.</p>
+<p>These are this plugin's baselining rules, not versioning requirements mandated
+by CWL. The implementation has a <strong>fixed static policy</strong>. <code>review_bump</code> lets a
+reviewer classify all unresolved changes for one comparison; there is no
+per-rule policy configuration or waiver system.</p>
+<h2 id="compatibility-direction">Compatibility direction<a class="headerlink" href="#compatibility-direction" title="Permanent link">&para;</a></h2>
+<p>Replacement requires both relationships:</p>
+<ul>
+<li>AcceptedInputs(old) ⊆ AcceptedInputs(new): existing jobs remain valid.</li>
+<li>PossibleOutputs(new) ⊆ PossibleOutputs(old): existing consumers can still handle results.</li>
+</ul>
+<p>Inputs are contravariant; outputs are covariant. Changing an input from <code>string</code>
+to <code>string | null</code> widens accepted values and has a minor floor. The same change
+to an output widens possible results and has a major floor. Narrowing an output
+has a patch floor <strong>and requires behavioral review</strong>: a stronger type guarantee
+can still change what the result means.</p>
+<p>The type checker covers primitives, numeric promotions, nullability, unions,
+enums, arrays, records, and available named schemas. Numeric promotion does not
+promise lossless conversion. <code>Any</code> excludes null unless null is explicitly
+included. Unresolved type compatibility requires review.</p>
+<h2 id="public-surface-and-assumptions">Public surface and assumptions<a class="headerlink" href="#public-surface-and-assumptions" title="Permanent link">&para;</a></h2>
+<p>Every Process in <code>context.document</code> is public, including helper tools exposed
+in that mapping. <code>context.process_id</code> does not limit the comparison. Renames
+appear as removal and addition. Public identifiers must remain stable.</p>
+<p>Adding outputs assumes consumers tolerate additional output keys. Removing an
+input is conservatively breaking because existing callers may still supply it.
+Record fields use the parameter rules: field removal is conservatively major
+in either direction, even where structural type assignability tolerates it.</p>
+<h2 id="static-rules">Static rules<a class="headerlink" href="#static-rules" title="Permanent link">&para;</a></h2>
+<p>A floor is the minimum established by static comparison. Review can increase it.
+<code>none + review</code> means that classification is unresolved, not that the change is safe.</p>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Minimum floor</th>
+<th>Review</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add a public Process</td>
+<td>minor</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Remove or rename a public Process</td>
+<td>major</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Add required input without a default</td>
+<td>major</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Add nullable input or input with a default</td>
+<td>minor</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Remove or rename input</td>
+<td>major</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Widen accepted input type; add input enum symbol</td>
+<td>minor</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Narrow accepted input type; remove input enum symbol</td>
+<td>major</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Add output</td>
+<td>minor</td>
+<td>No; assumes extra keys are tolerated</td>
+</tr>
+<tr>
+<td>Remove or rename output</td>
+<td>major</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Widen possible output type; add output enum symbol</td>
+<td>major</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Narrow possible output type; remove output enum symbol</td>
+<td>patch</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Remove input omission capability</td>
+<td>major</td>
+<td>Separately review a changed default</td>
+</tr>
+<tr>
+<td>Add, remove, or change an existing parameter default</td>
+<td>none</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Change <code>doc</code>, <code>label</code>, schema.org name/description</td>
+<td>none</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Change command, binding, expression, container, wiring, or steps</td>
+<td>none</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Change unknown extension fields</td>
+<td>none</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>Other changes in the same comparison may establish a higher floor or require
+review. Metadata-only changes have no compatibility bump; this is not a
+recommendation about an organization's release publication practices.</p>
+<h2 id="omission-and-defaults">Omission and defaults<a class="headerlink" href="#omission-and-defaults" title="Permanent link">&para;</a></h2>
+<p>Omission is checked independently from the value type. In this implementation,
+an input is omittable when its serialized parameter has a <code>default</code> key or its
+type admits null. Removing a default from a non-nullable input loses omission
+capability and is major, with a separate default-change review finding. Removing
+it from a nullable input preserves omission but still requires review.</p>
+<p>Changing a default can change omitted/null-input behavior without altering the
+type. The analyzer reports it rather than executing CWL default semantics.
+Presence flags distinguish an absent value from explicit JSON null in the
+supplied DOM; a serializer may already have discarded that distinction.</p>
+<h2 id="interface-environment-and-behavior">Interface, environment, and behavior<a class="headerlink" href="#interface-environment-and-behavior" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Examples</th>
+<th>Implemented treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interface</td>
+<td>Parameter identity, types, omission, <code>format</code>, <code>secondaryFiles</code></td>
+<td>Directional rules, with review for unresolved constraints</td>
+</tr>
+<tr>
+<td>Execution environment</td>
+<td>Mandatory requirements, resource/network settings, CWL version</td>
+<td>New mandatory requirement is major; existing changes need review</td>
+</tr>
+<tr>
+<td>Behavior</td>
+<td>Defaults, commands, expressions, images, wiring, output collection</td>
+<td>Report changes for explicit classification</td>
+</tr>
+</tbody>
+</table>
+<p>Findings also have a <code>metadata</code> category for recognized documentation fields.
+Categories are labels, not separate version calculations. New requirements and
+CWL-version changes use <code>environment</code>; residual changes to existing requirements
+and hints generally use <code>behavior</code>. A finding may use <code>interface</code> and still
+require behavioral review, such as output narrowing.</p>
+<h3 id="file-constraints">File constraints<a class="headerlink" href="#file-constraints" title="Permanent link">&para;</a></h3>
+<p>For literal formats, widening accepted input formats has a minor floor and
+narrowing output formats has a patch floor. The latter does not independently
+request review in the current implementation. Adding an input format restriction
+where none existed, or removing an output format guarantee, is major. Other
+format-set changes may depend on ontology relationships and require review;
+format expressions also require review. No ontology is fetched.</p>
+<p>Requiring a new secondary input file, or changing it from optional to required,
+is major. Removing or weakening a required secondary output guarantee is major.
+Other literal secondary-file contract changes are minor. An optional secondary
+output is not a required guarantee. Changes involving expressions in the pattern
+or <code>required</code> value require review.</p>
+<h3 id="requirements-and-hints">Requirements and hints<a class="headerlink" href="#requirements-and-hints" title="Permanent link">&para;</a></h3>
+<p>Adding a mandatory requirement is major because it may exclude runners that
+previously worked. <code>SchemaDefRequirement</code> is handled specially: referenced schemas
+are compared through parameter types; unused declarations receive residual review.
+Changing or removing an existing requirement generally requires review, as does
+changing <code>cwlVersion</code>. Resource and network settings are not quantitatively
+modeled.</p>
+<p>Hints are advisory and do not use the mandatory-requirement addition rule.
+Changed hints receive residual review. Changes to an existing container
+requirement likewise need review; adding it as a new mandatory requirement
+establishes a major floor.</p>
+<h3 id="steps-and-behavior">Steps and behavior<a class="headerlink" href="#steps-and-behavior" title="Permanent link">&para;</a></h3>
+<p>Steps are matched by ID; changing their order alone is ignored. Adding or
+removing a step requests review without automatically setting a major floor.
+Changes to <code>valueFrom</code>, <code>when</code>, <code>scatter</code>, <code>outputSource</code>, <code>glob</code>, commands,
+containers, and embedded <code>run</code> objects are reported when present in the DOM.
+Execution-significant lists, such as command arguments, retain order.</p>
+<p>Static comparison cannot decide whether those changes are fixes, features, or
+breaking behavior. A change in scientific meaning or units can require a major
+release even when the public types remain unchanged.</p>
+<h2 id="version-aggregation-and-review">Version aggregation and review<a class="headerlink" href="#version-aggregation-and-review" title="Permanent link">&para;</a></h2>
+<p>The maximum static floor across all findings is applied <strong>once</strong> to the previous
+release. The implementation applies major/minor/patch increments directly,
+including for <code>0.x</code> versions; it has no special pre-1.0 policy. No changes retain
+the previous version. The plugin never edits version metadata.</p>
+<p>While review is unresolved, <code>suggested_version</code> is null and
+<code>declared_version_sufficient</code> is false, even if the declared version is high.
+After assessment, set <code>review_bump</code> to the highest required classification across
+<strong>all</strong> review findings: <code>patch</code>, <code>minor</code>, or <code>major</code>. It cannot lower the static
+floor. Per-finding review flags remain for audit; the report-level flag then
+indicates that review is resolved. There is no <code>none</code> review classification.</p>
+<p>Both contexts need valid SemVer metadata. The previous release must not be a
+prerelease. Current prereleases are accepted, but <code>1.3.0-dev.1</code> is below a required
+final <code>1.3.0</code>. <code>check=True</code> writes the complete report before raising a domain
+failure for unresolved review or an insufficient declared version.</p>
+<p>See <a href="../architecture/">architecture and boundaries</a> for what the analyzer can
+observe and <a href="../../how-to/use-cli/">runtime usage</a> for review commands.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../" class="btn btn-neutral float-left" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../architecture/" class="btn btn-neutral float-right" title="Architecture">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Transpiler-Mate/cwl-baseline-plugin" class="fa fa-code-fork" style="color: #fcfcfc"> cwl-baseline-plugin</a>
+        </span>
+    
+    
+      <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../architecture/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
