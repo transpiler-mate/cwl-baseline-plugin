@@ -16,16 +16,33 @@ limitations under the License.
 
 # Install
 
-## From PyPI
+Install the plugin into the same Python environment as the `transpiler-mate`
+runtime:
 
 ```bash
-pip install cwl-baseline-plugin
+python -m pip install cwl-baseline-plugin
+transpiler-mate baseline --help
 ```
 
-## From source
+The package requires Python >=3.10 and declares `transpiler-mate-api==1.0.0`,
+`semver>=3.0.4,<4`, and `loguru==0.7.3`. The API supplies Pydantic and CWL DOM
+support. The runtime CLI is a separate installation; the plugin provides no
+standalone `cwl_baseline` executable.
+
+For a local checkout:
 
 ```bash
-git clone https://github.com/Transpiler-Mate/cwl-baseline-plugin
-cd cwl-baseline-plugin
-hatch env create
+python -m pip install -e .
+```
+
+The installed entry point is `baseline = "cwl_baseline.plugin:baseline_plugin"`
+in group `transpiler_mate.plugins`. Reinstall after changing package dependencies
+or entry-point metadata.
+
+For development, use the configured Hatch environments:
+
+```bash
+hatch run test:test
+hatch run dev:typecheck
+hatch run dev:check
 ```

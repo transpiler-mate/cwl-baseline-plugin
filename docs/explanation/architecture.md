@@ -14,14 +14,42 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# Architecture
+# Architecture and boundaries
 
-`cwl-baseline-plugin` follows a conventional Python package layout:
+The runtime resolves the current CWL into a `TranspilerContext`, including its
+Processes, metadata, and resolver. `baseline_plugin` resolves only `previous`
+through that resolver, compares both contexts, and writes a JSON report.
+The library function `baseline(previous, current, review_bump=None)` returns the
+report directly without writing a file (`review_bump` is keyword-only).
 
-```text
-src/cwl_baseline/
-tests/
-docs/
-```
+| Module | Responsibility |
+| --- | --- |
+| `normalize` | Serialize supplied DOMs; normalize identities; index parameters and schemas |
+| `types` | Directional type assignability, including an unknown result |
+| `compare` | Compatibility findings, residual change reporting, version aggregation |
+| `models` | Report, finding, and bump types |
+| `plugin` | Options, previous-release resolution, report writing, and check failures |
 
-The project uses Hatch for packaging, testing environments, and build orchestration. Documentation is organized according to Diátaxis so that learning, task completion, lookup, and conceptual understanding remain separated.
+Normalization uses `save(relative_uris=False)`. It strips the owning document's
+location from CWL identity/reference fields while retaining scopes and external
+URIs. Defaults, command arguments, expressions, and extension values remain
+literal. Named schema references resolve within a Process when unambiguous.
+Generated IDs for anonymous inline tools are normalized; public Process IDs
+need stable identifiers.
+
+The runtime owns parsing, imports, graph validation, and metadata extraction.
+The plugin does not execute CWL, evaluate JavaScript, inspect image contents,
+fetch ontologies, or recursively fetch external `run` URLs. Pin dependencies
+and supply their resolved snapshots when reproducible comparisons are needed.
+Changes behind an unchanged external reference absent from the supplied DOMs
+cannot be detected. Missing or inherited schema definitions can leave type
+compatibility unresolved.
+
+Comparison concerns the serialized DOM, not source text. Comments, spelling,
+and distinctions discarded by the parser cannot be recovered. Finding paths
+refer to the normalized comparison model, not file line numbers. Neither input
+context nor its metadata is mutated.
+
+The [compatibility policy](compatibility.md) separates static guarantees from
+behavior that needs a reviewer. A report is not proof of scientific or behavioral
+equivalence.

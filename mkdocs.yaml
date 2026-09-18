@@ -13,7 +13,7 @@
 # limitations under the License.
 
 site_name: CWL Baseline Transpiler Mate Plugin
-site_description: CWL Baseline Transpiler Mate Plugin Transpiler-Mate Plugin.
+site_description: Analyze CWL release compatibility and report minimum SemVer increments.
 site_url: https://Transpiler-Mate.github.io/cwl-baseline-plugin/
 repo_url: https://github.com/Transpiler-Mate/cwl-baseline-plugin
 repo_name: cwl-baseline-plugin
@@ -36,6 +36,7 @@ nav:
       - API: reference/api.md
   - Explanation:
       - Overview: explanation/index.md
+      - Compatibility policy: explanation/compatibility.md
       - Architecture: explanation/architecture.md
 
 theme:

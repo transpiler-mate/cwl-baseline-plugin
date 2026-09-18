@@ -14,22 +14,37 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# First steps
+# Compare two releases
 
-In this tutorial, you will install `cwl-baseline-plugin` and run the command-line entry point.
+Start from a checkout of this repository with the plugin and runtime installed
+in the same environment, following the [installation guide](../how-to/install.md).
 
-## Install
+The fixtures in `examples/` contain the same public `main` Process. The previous
+release declares version `1.2.3`; the current release adds a nullable `prefix`
+input and declares `1.3.0`. Existing callers can omit the new input.
+
+From the repository root, run:
 
 ```bash
-pip install cwl-baseline-plugin
+transpiler-mate baseline examples/current.cwl \
+  --previous examples/previous.cwl \
+  --output baseline.json --check
 ```
 
-## Run
+Open `baseline.json`. The expected result is:
 
-```bash
-cwl_baseline --version
-```
+| Field | Value | Meaning |
+| --- | --- | --- |
+| `minimum_bump` | `minor` | An optional public input was added |
+| `minimum_version` | `1.3.0` | One minor increment from `1.2.3` |
+| `suggested_version` | `1.3.0` | No unresolved review |
+| `review_required` | `false` | This finding is statically classified |
+| `declared_version_sufficient` | `true` | Current metadata satisfies the floor |
 
-## Next step
+The `input.added` finding identifies the normalized input path and records its
+new value. `examples/baseline.json` provides a sample report.
 
-Move to the how-to guides when you need to complete a specific operational task.
+For changes involving defaults, commands, or wiring, a report may instead have
+`review_required: true` and `suggested_version: null`. Continue with
+[review and CI usage](../how-to/use-cli.md); a high version alone does not resolve
+behavioral review.

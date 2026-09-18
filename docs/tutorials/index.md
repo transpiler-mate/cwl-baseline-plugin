@@ -1,5 +1,5 @@
 <!--
-Copyright {{ copyright_year }} {{ author_name }}
+Copyright 2026 Transpiler-Mate
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,6 +16,5 @@ limitations under the License.
 
 # Tutorials
 
-Tutorials are learning-oriented lessons. They should guide a new user through a complete, successful path without assuming prior project knowledge.
-
-Start with [First steps](first-steps.md).
+[Compare two releases](first-steps.md) using the optional-input example and learn
+to read the resulting version recommendation.

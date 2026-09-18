@@ -11,14 +11,14 @@
   "findings": [
     {
       "rule": "input.added",
-      "path": "/processes/main/inputs/main~1prefix",
+      "path": "/processes/main/inputs/prefix",
       "category": "interface",
       "minimum_bump": "minor",
       "review_required": false,
       "message": "Public parameter added.",
       "before": null,
       "after": {
-        "id": "main/prefix",
+        "id": "prefix",
         "type": [
           "null",
           "string"

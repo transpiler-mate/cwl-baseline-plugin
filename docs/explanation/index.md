@@ -1,5 +1,5 @@
 <!--
-Copyright {{ copyright_year }} {{ author_name }}
+Copyright 2026 Transpiler-Mate
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,8 +16,7 @@ limitations under the License.
 
 # Explanation
 
-Explanation documentation is understanding-oriented. It should describe background, trade-offs, and rationale.
-
-Available explanation pages:
-
-- [Architecture](architecture.md)
+- [Compatibility and version policy](compatibility.md): public contracts, variance,
+  defaults, execution requirements, and behavioral review.
+- [Architecture and boundaries](architecture.md): runtime responsibilities,
+  normalization, and limits of static analysis.

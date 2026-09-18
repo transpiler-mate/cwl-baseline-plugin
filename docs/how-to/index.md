@@ -1,5 +1,5 @@
 <!--
-Copyright {{ copyright_year }} {{ author_name }}
+Copyright 2026 Transpiler-Mate
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,9 +16,5 @@ limitations under the License.
 
 # How-to guides
 
-How-to guides are task-oriented recipes. Each page should help an already-oriented user complete one specific task.
-
-Available guides:
-
-- [Install](install.md)
-- [Use the CLI](use-cli.md)
+- [Install](install.md) the plugin in your runtime environment.
+- [Run a baseline and enforce it in CI](use-cli.md), including behavioral review.

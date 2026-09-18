@@ -26,7 +26,7 @@ explainable JSON baseline report with a minimum SemVer increment.
 ## Install
 
 ```bash
-python -m pip install ./transpiler-mate-baseline
+python -m pip install cwl-baseline-plugin
 ```
 
 For development, install your checkout of the API first if it has not yet been
@@ -34,33 +34,40 @@ published, then install this project:
 
 ```bash
 python -m pip install -e ../transpiler-mate-api
-python -m pip install -e '.[test]'
-pytest
+python -m pip install -e .
+hatch run test:test
 ```
 
-Requires Python >=3.10, `transpiler-mate-api>=1,<2`, and `semver>=3.0.4,<4`.
+Requires Python >=3.10, `transpiler-mate-api==1.0.0`, `semver>=3.0.4,<4`, and `loguru==0.7.3`.
 The API supplies cwl-utils and Pydantic. The effective Python requirement also
 depends on the selected versions of those dependencies.
 
 ## Integrate with a transpiler-mate runtime
 
-Exported plugin object: `transpiler_mate_baseline.plugin`.
+Exported plugin object: `cwl_baseline.baseline_plugin`.
 Plugin name: `baseline`. Options model: `BaselineOptions`.
 
-The API deliberately specifies no CLI syntax or discovery entry-point group.
-Register the exported object using your runtime's plugin discovery/adapter.
-This package does not invent an entry-point group or reload the current CWL.
+The package registers `baseline = "cwl_baseline.plugin:baseline_plugin"` in the
+`transpiler_mate.plugins` entry-point group. Install it into the same environment
+as the separately installed runtime. It provides no standalone `cwl_baseline`
+executable. The runtime resolves the current CWL; the plugin resolves only the
+previous release.
+
+```bash
+transpiler-mate baseline examples/current.cwl \
+  --previous examples/previous.cwl --output baseline.json --check
+```
 
 The host CLI resolves its input CWL into `context` and invokes:
 
 ```python
 from pathlib import Path
 from transpiler_mate.api import TranspilerContext
-from transpiler_mate_baseline import BaselineOptions, plugin
+from cwl_baseline import BaselineOptions, baseline_plugin
 
 
 def execute_baseline(context: TranspilerContext) -> None:
-    plugin.execute(
+    baseline_plugin.execute(
         context,
         BaselineOptions(
             previous="path-or-URI-to-previous-release.cwl",
@@ -93,11 +100,22 @@ of `context.process_id`. Both versions are read from
 `context.metadata.software_version` on their respective contexts.
 
 The highest applicable bump is applied **once to the previous release** using
-`semver.Version.bump_major()`, `.bump_minor()`, or `.bump_patch()`. SemVer calls
-the third component *patch*; this corresponds to *micro* in the request.
+`semver.Version.bump_major()`, `.bump_minor()`, or `.bump_patch()`. The third component is called *patch*.
 Neither CWL document nor either metadata object is mutated.
 
 ## Compatibility policy
+
+The current implementation uses fixed static rules plus the global `review_bump`
+classification. It does not yet support configurable per-rule policies. These
+are plugin baselining assumptions, not versioning rules mandated by CWL.
+
+Replacement requires AcceptedInputs(old) ⊆ AcceptedInputs(new) and
+PossibleOutputs(new) ⊆ PossibleOutputs(old). Inputs are contravariant; outputs
+are covariant. Thus `string` → `string | null` is minor for an input but major
+for an output. Identical signatures do not prove compatible behavior.
+
+See the [full compatibility policy](docs/explanation/compatibility.md) for the
+implemented rules and their limitations.
 
 Every Process exposed in `context.document` is treated as public. A Process
 addition is minor; a removal or rename is major. This policy is intentionally
@@ -110,15 +128,15 @@ conservative for documents containing helper tools in their public mapping.
 | Add input that cannot be omitted | major |
 | Add nullable/defaulted input | minor |
 | Remove/rename input or output | major |
-| Add output | minor |
+| Add output | minor; assumes consumers tolerate extra output keys |
 | Widen accepted input values | minor |
 | Narrow accepted input values | major |
 | Widen possible output values | major |
 | Narrow possible output values | patch, with behavioral review |
 | Remove input omission capability | major |
 | Change default | review; independently detect loss of omission capability |
-| Add mandatory execution requirement | major |
-| Change language version/existing execution requirement | review |
+| Add mandatory execution requirement | major; schema definitions handled separately |
+| Change language version, existing execution requirement, or advisory hint | review |
 | Change command, binding, expression, wiring, container, or step | review |
 | Change `doc`, `label`, schema.org name/description | none |
 | Change unknown extensions | review |
@@ -130,11 +148,25 @@ schemas. Numeric promotion follows CWL type assignability; it does not claim
 lossless numeric conversion. `Any` excludes null unless explicitly unioned
 with null. Removed record fields are conservatively major for either direction.
 
+Input omission is tracked separately: a serialized default or a nullable type
+allows omission. Removing a default is major only when omission becomes invalid,
+with a separate review finding for the default change. Adding or changing an
+existing parameter's default also requires review.
+
+Hints do not trigger the new mandatory requirement rule. Existing requirement
+changes, including resource/network settings and container images, generally
+receive residual behavioral review. Adding a new mandatory container requirement
+is major. `SchemaDefRequirement` definitions are compared through parameter types;
+unused schema changes require review.
+
 File constraints include `format` and `secondaryFiles`. Literal format subset
 relations can prove compatibility, but relationships between different format
 IRIs may require ontology knowledge and are left for review. Secondary-file
 expressions are also left for review. Existing optional secondary-file outputs
-are not treated as required guarantees.
+are not treated as required guarantees. Requiring a new secondary input file or
+weakening a required secondary output guarantee is major; other literal changes
+are minor. Compatible output-format narrowing has a patch floor without an
+independent review flag in the current implementation.
 
 Workflow steps are internal implementation details. They are matched by ID;
 adding/removing one requires behavioral review rather than automatically
@@ -186,7 +218,7 @@ options = BaselineOptions(
     review_bump="patch",  # All review findings have been assessed as compatible fixes.
     check=True,
 )
-plugin.execute(context, options)
+baseline_plugin.execute(context, options)
 ```
 
 `review_bump` applies to **all** review findings in this invocation. It cannot
@@ -197,7 +229,7 @@ A global classification is not a per-rule waiver mechanism.
 For library use without writing files:
 
 ```python
-from transpiler_mate_baseline import baseline
+from cwl_baseline import baseline
 
 previous = context.resolver.resolve("release.cwl")
 report = baseline(previous, context)
@@ -243,8 +275,7 @@ use synthetic source URIs and disable link-existence checking only in their
 fixture loader; production loading remains entirely with the host resolver.
 
 `examples/previous.cwl`, `examples/current.cwl`, and
-`examples/baseline.json` illustrate adding an optional input. See
-`VALIDATION.md` for the exact environment and checks used for this delivery.
+`examples/baseline.json` illustrate adding an optional input. Run `hatch run test:test` to execute the configured Python-version test matrix.
 
 Upstream API: https://github.com/transpiler-mate/transpiler-mate-api
 SemVer library: https://pypi.org/project/semver/
@@ -266,7 +297,7 @@ task quality:pre-commit:install
 ```
 
 Every commit runs Ruff (including the configured McCabe complexity limit),
-Ruff formatting, strict mypy checks, and the pytest suite.
+Ruff formatting, mypy, Bandit, and the pytest suite.
 
 Run the complete hook explicitly with:
 

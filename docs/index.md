@@ -14,20 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-# CWL Baseline Transpiler Mate Plugin
+# CWL Baseline Plugin
 
-CWL Baseline Transpiler Mate Plugin Transpiler-Mate Plugin.
-
-Use these docs by intent:
-
-- [Tutorials](tutorials/): learn by completing a guided path.
-- [How-to guides](how-to/): solve specific tasks.
-- [Reference](reference/): look up commands, APIs, and configuration.
-- [Explanation](explanation/): understand design decisions and concepts.
-
-## Quick start
+Compare two resolved CWL releases and obtain an explainable JSON report with a
+minimum SemVer increment. The analyzer checks public inputs and outputs in
+opposite compatibility directions, reports execution-environment changes, and
+requests review for behavior that static comparison cannot classify.
 
 ```bash
-pip install cwl-baseline-plugin
-cwl_baseline --version
+python -m pip install cwl-baseline-plugin
+transpiler-mate baseline current.cwl --previous released.cwl --output baseline.json
 ```
+
+Install the plugin in the same environment as the separately installed runtime.
+Both documents need version metadata accepted by that runtime.
+
+- [First comparison](tutorials/first-steps.md): run the repository examples.
+- [Installation](how-to/install.md): package and environment setup.
+- [Runtime and CI usage](how-to/use-cli.md): reports, review, and version checks.
+- [API and report reference](reference/api.md): options and JSON fields.
+- [Compatibility policy](explanation/compatibility.md): rules, assumptions, and direction.
+- [Architecture and boundaries](explanation/architecture.md): what the analyzer can observe.
