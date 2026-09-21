@@ -1,0 +1,161 @@
+# Derived from src/cwl_baseline/models.py (BaselineReport and Finding).
+# Copyright 2026 Transpiler-Mate
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://transpiler-mate.github.io/cwl-baseline
+$ref: '#/$defs/BaselineReport'
+$defs:
+  MinimumBump:
+    enum:
+    - none
+    - patch
+    - minor
+    - major
+    title: Minimum Bump
+    type: string
+    description: Statically determined minimum version increment for this finding.
+
+  Finding:
+    properties:
+      rule:
+        title: Rule
+        type: string
+        description: Identifier of the comparison rule that produced this finding.
+      path:
+        title: Path
+        type: string
+        description: Location in the normalized model, using JSON-Pointer-style escaping.
+      category:
+        enum:
+        - interface
+        - environment
+        - behavior
+        - metadata
+        title: Category
+        type: string
+        description: Classification of the changed aspect of the contract.
+      minimum_bump:
+        $ref: '#/$defs/MinimumBump'
+      review_required:
+        default: false
+        title: Review Required
+        type: boolean
+        description: Whether this finding needs behavioral review; retained for auditing after 
+          global review classification.
+      message:
+        title: Message
+        type: string
+        description: Human-readable explanation of the change.
+      before:
+        default:
+        title: Before
+        description: Previous JSON value; null also represents an absent value when before_present 
+          is false.
+      after:
+        default:
+        title: After
+        description: Current JSON value; null also represents an absent value when after_present is 
+          false.
+      before_present:
+        default: true
+        title: Before Present
+        type: boolean
+        description: Whether the previous value exists, distinguishing absence from explicit null.
+      after_present:
+        default: true
+        title: After Present
+        type: boolean
+        description: Whether the current value exists, distinguishing absence from explicit null.
+    required:
+    - rule
+    - path
+    - category
+    - minimum_bump
+    - message
+    title: Finding
+    type: object
+    description: One detected change in the normalized CWL public contract.
+
+  Bump:
+    enum:
+    - patch
+    - minor
+    - major
+    type: string
+
+  BaselineReport:
+    properties:
+      schema_version:
+        default: '1.0'
+        title: Schema Version
+        type: string
+        description: Report format version, currently 1.0.
+      previous_version:
+        title: Previous Version
+        type: string
+        description: Semantic version of the previous released baseline.
+      current_version:
+        title: Current Version
+        type: string
+        description: Declared semantic version of the current release.
+      minimum_bump:
+        $ref: '#/$defs/MinimumBump'
+      minimum_version:
+        title: Minimum Version
+        type: string
+        description: Previous version incremented once by minimum_bump.
+      suggested_version:
+        anyOf:
+        - type: string
+        - type: 'null'
+        title: Suggested Version
+        description: Minimum release version after review classification, or null while review remains 
+          unresolved.
+      review_required:
+        title: Review Required
+        type: boolean
+        description: Whether any behavioral review remains unresolved.
+      review_bump:
+        anyOf:
+        - $ref: '#/$defs/Bump'
+        - type: 'null'
+        default:
+        title: Review Bump
+        description: Explicit global classification of changes requiring review, or null if none was 
+          supplied.
+      declared_version_sufficient:
+        title: Declared Version Sufficient
+        type: boolean
+        description: True when review is resolved and the current version meets or exceeds the suggested
+          version.
+      findings:
+        items:
+          $ref: '#/$defs/Finding'
+        title: Findings
+        type: array
+        description: Detailed changes contributing to the comparison; defaults to an empty list in the 
+          model.
+    required:
+    - previous_version
+    - current_version
+    - minimum_bump
+    - minimum_version
+    - suggested_version
+    - review_required
+    - declared_version_sufficient
+    title: BaselineReport
+    type: object
+    description: CWL baseline comparison report. Required fields and defaults follow 
+      cwl_baseline.models.BaselineReport; the plugin serializes all fields, including defaults.

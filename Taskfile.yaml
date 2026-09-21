@@ -15,6 +15,7 @@
 version: '3'
 
 includes:
+  json: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/json.yaml
   quality: https://raw.githubusercontent.com/Terradue/taskfile-utils/refs/heads/main/quality.yaml
 
 tasks:
@@ -22,3 +23,12 @@ tasks:
   default:
     cmds:
     - task: quality:pre-commit:run
+
+  generate_model:
+    desc: Generate Pydantic report models from JSON Schema
+    cmds:
+      - task: json:create_models
+        vars:
+          INPUT_FILE_TYPE: 'jsonschema'
+          SCHEMA: './schemas/baseline-report.yaml'
+          OUTPUT: './src/cwl_baseline/models.py'
