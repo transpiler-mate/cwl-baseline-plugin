@@ -17,7 +17,7 @@ $schema: https://json-schema.org/draft/2020-12/schema
 $id: https://transpiler-mate.github.io/cwl-baseline
 $ref: '#/$defs/BaselineReport'
 $defs:
-  MinimumBump:
+  Bump:
     enum:
     - none
     - patch
@@ -47,7 +47,7 @@ $defs:
         type: string
         description: Classification of the changed aspect of the contract.
       minimum_bump:
-        $ref: '#/$defs/MinimumBump'
+        $ref: '#/$defs/Bump'
       review_required:
         default: false
         title: Review Required
@@ -88,14 +88,6 @@ $defs:
     type: object
     description: One detected change in the normalized CWL public contract.
 
-  Bump:
-    enum:
-    - none
-    - patch
-    - minor
-    - major
-    type: string
-
   BaselineReport:
     properties:
       schema_version:
@@ -112,7 +104,7 @@ $defs:
         type: string
         description: Declared semantic version of the current release.
       minimum_bump:
-        $ref: '#/$defs/MinimumBump'
+        $ref: '#/$defs/Bump'
       minimum_version:
         title: Minimum Version
         type: string
