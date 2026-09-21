@@ -90,6 +90,7 @@ $defs:
 
   Bump:
     enum:
+    - none
     - patch
     - minor
     - major
