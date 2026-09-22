@@ -139,6 +139,7 @@ $defs:
       findings:
         items:
           $ref: '#/$defs/Finding'
+        default: []
         title: Findings
         type: array
         description: Detailed changes contributing to the comparison; defaults to an empty list in the 
