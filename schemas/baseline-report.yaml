@@ -27,6 +27,16 @@ $defs:
     type: string
     description: Statically determined minimum version increment for this finding.
 
+  FindingCategory:
+    enum:
+    - interface
+    - environment
+    - behavior
+    - metadata
+    title: Category
+    type: string
+    description: Classification of the changed aspect of the contract.
+
   Finding:
     properties:
       rule:
@@ -38,14 +48,7 @@ $defs:
         type: string
         description: Location in the normalized model, using JSON-Pointer-style escaping.
       category:
-        enum:
-        - interface
-        - environment
-        - behavior
-        - metadata
-        title: Category
-        type: string
-        description: Classification of the changed aspect of the contract.
+        $ref: '#/$defs/FindingCategory'
       minimum_bump:
         $ref: '#/$defs/Bump'
       review_required:

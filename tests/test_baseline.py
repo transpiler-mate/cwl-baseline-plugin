@@ -7,6 +7,7 @@ from conftest import context, process
 from transpiler_mate.api import PluginFailureError
 
 from cwl_baseline import baseline
+from cwl_baseline.models import Bump, FindingCategory
 from cwl_baseline.normalize import document
 from cwl_baseline.types import assignable
 
@@ -28,7 +29,7 @@ def compare(old, new, **kwargs):
 )
 def test_process_inventory(old, new, bump):
     report = compare(old, new)
-    assert report.minimum_bump == bump
+    assert report.minimum_bump == Bump(bump)
     assert report.suggested_version == {"major": "2.0.0", "minor": "1.3.0"}[bump]
 
 
@@ -36,7 +37,7 @@ def test_same_document_different_source_and_order():
     old = [process(inputs={"a": "string", "b": "int"}), process("other")]
     new = [process("other"), process(inputs={"b": "int", "a": "string"})]
     report = compare(old, new)
-    assert report.minimum_bump == "none"
+    assert report.minimum_bump == Bump.NONE
     assert report.suggested_version == "1.2.3"
     assert report.findings == []
 
@@ -57,7 +58,7 @@ def test_same_document_different_source_and_order():
 )
 def test_input_changes(old, new, bump):
     report = compare([process(inputs=old)], [process(inputs=new)])
-    assert report.minimum_bump == bump
+    assert report.minimum_bump == Bump(bump)
 
 
 @pytest.mark.parametrize(
@@ -73,7 +74,7 @@ def test_input_changes(old, new, bump):
 )
 def test_output_changes(old, new, bump, review):
     report = compare([process(outputs=old)], [process(outputs=new)])
-    assert report.minimum_bump == bump
+    assert report.minimum_bump == Bump(bump)
     assert report.review_required == review
 
 
@@ -93,7 +94,7 @@ def test_enum_variance(direction, bump):
         [process(**{direction: {"x": {"type": old}}})],
         [process(**{direction: {"x": {"type": new}}})],
     )
-    assert report.minimum_bump == bump
+    assert report.minimum_bump == Bump(bump)
 
 
 def test_named_schema_definition_change():
@@ -108,7 +109,7 @@ def test_named_schema_definition_change():
         )
 
     report = compare([workflow(["one", "two"])], [workflow(["one"])])
-    assert report.minimum_bump == "major"
+    assert report.minimum_bump == Bump.MAJOR
     assert any(f.rule == "input.type_incompatible" for f in report.findings)
 
 
@@ -129,7 +130,9 @@ def test_record_fields(old_fields, new_fields, bump):
             }
         )
 
-    assert compare([workflow(old_fields)], [workflow(new_fields)]).minimum_bump == bump
+    assert compare([workflow(old_fields)], [workflow(new_fields)]).minimum_bump == Bump(
+        bump
+    )
 
 
 def test_array_item_variance():
@@ -137,7 +140,7 @@ def test_array_item_variance():
         [process(inputs={"x": {"type": {"type": "array", "items": "long"}}})],
         [process(inputs={"x": {"type": {"type": "array", "items": "int"}}})],
     )
-    assert report.minimum_bump == "major"
+    assert report.minimum_bump == Bump.MAJOR
     assert any(f.path.endswith("/items") for f in report.findings)
 
 
@@ -146,7 +149,7 @@ def test_default_change_is_not_silently_patch():
         [process(inputs={"x": {"type": "string", "default": "a"}})],
         [process(inputs={"x": {"type": "string", "default": "b"}})],
     )
-    assert report.minimum_bump == "none"
+    assert report.minimum_bump == Bump.NONE
     assert report.review_required
     assert report.suggested_version is None
 
@@ -164,9 +167,9 @@ def test_defaults_containing_identifier_keys_are_literal():
 
 def test_doc_change_has_no_bump():
     report = compare([process(doc="Old")], [process(doc="New")])
-    assert report.minimum_bump == "none"
+    assert report.minimum_bump == Bump.NONE
     assert not report.review_required
-    assert report.findings[0].category == "metadata"
+    assert report.findings[0].category == FindingCategory.METADATA
 
 
 def test_version_metadata_is_excluded():
@@ -182,8 +185,8 @@ def test_mandatory_requirement_added():
     report = compare(
         [process()], [process(requirements={"NetworkAccess": {"networkAccess": True}})]
     )
-    assert report.minimum_bump == "major"
-    assert report.findings[0].category == "environment"
+    assert report.minimum_bump == Bump.MAJOR
+    assert report.findings[0].category == FindingCategory.ENVIRONMENT
 
 
 def test_container_change_requires_review():
@@ -203,15 +206,20 @@ def test_review_policy(review_bump, expected):
     new = process(requirements={"DockerRequirement": {"dockerPull": "image:2"}})
     report = compare([old], [new], review_bump=review_bump)
     assert report.suggested_version == expected
+    assert report.review_bump == Bump(review_bump)
     assert not report.review_required
     assert any(f.review_required for f in report.findings)
 
 
 def test_review_policy_never_downgrades_breaking_changes():
     report = compare(
-        [process(inputs={"x": "string"})], [process()], review_bump="patch"
+        [process(inputs={"x": "string", "y": {"type": "string", "default": "a"}})],
+        [process(inputs={"y": {"type": "string", "default": "b"}})],
+        review_bump="patch",
     )
     assert report.suggested_version == "2.0.0"
+    assert any(f.review_required for f in report.findings)
+    assert not report.review_required
 
 
 @pytest.mark.parametrize(
@@ -226,7 +234,7 @@ def test_review_policy_never_downgrades_breaking_changes():
 def test_secondary_files(direction, old, new, bump):
     a = process(**{direction: {"x": {"type": "File", "secondaryFiles": old}}})
     b = process(**{direction: {"x": {"type": "File", "secondaryFiles": new}}})
-    assert compare([a], [b]).minimum_bump == bump
+    assert compare([a], [b]).minimum_bump == Bump(bump)
 
 
 @pytest.mark.parametrize(
@@ -245,7 +253,7 @@ def test_format_constraints(direction, old, new, bump):
             p["format"] = fmt
         return process(**{direction: {"x": p}})
 
-    assert compare([workflow(old)], [workflow(new)]).minimum_bump == bump
+    assert compare([workflow(old)], [workflow(new)]).minimum_bump == Bump(bump)
 
 
 def test_different_format_iris_need_ontology_review():
@@ -352,7 +360,7 @@ def test_record_inside_union_field_removal():
     report = compare(
         [workflow({"a": "string", "b": "string?"})], [workflow({"a": "string"})]
     )
-    assert report.minimum_bump == "major"
+    assert report.minimum_bump == Bump.MAJOR
 
 
 def test_record_metadata_inside_union_is_not_lost():
@@ -395,7 +403,7 @@ def test_enum_documentation_change_is_reported():
     report = compare([workflow("a")], [workflow("b")])
     assert report.findings
     assert not report.review_required
-    assert report.minimum_bump == "none"
+    assert report.minimum_bump == Bump.NONE
 
 
 def test_steps_are_private_and_order_independent():
@@ -420,7 +428,7 @@ def test_steps_are_private_and_order_independent():
     new["steps"].pop()
     report = compare([old], [new])
     assert report.review_required
-    assert report.minimum_bump == "none"
+    assert report.minimum_bump == Bump.NONE
     assert any(f.rule == "step.removed" for f in report.findings)
 
 

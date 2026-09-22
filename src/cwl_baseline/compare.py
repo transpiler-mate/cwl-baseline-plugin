@@ -26,6 +26,8 @@ from .models import BaselineReport, Bump, Finding, FindingCategory
 from .normalize import document, index, local_fields, schemas
 from .types import assignable, omittable, resolve
 
+BUMP_PRIORITY = {Bump.NONE: 0, Bump.PATCH: 1, Bump.MINOR: 2, Bump.MAJOR: 3}
+
 MISSING = object()
 DOCUMENTATION = {
     "label",
@@ -81,13 +83,13 @@ class Comparator:
         after: Any = MISSING,
         *,
         review: bool = False,
-        category: FindingCategory = "interface",
+        category: FindingCategory = FindingCategory.INTERFACE,
     ) -> None:
         self.findings.append(
             Finding(
                 rule=rule,
                 path=path,
-                minimum_bump=bump.label,
+                minimum_bump=bump,
                 message=message,
                 before=None if before is MISSING else before,
                 after=None if after is MISSING else after,
@@ -123,7 +125,7 @@ class Comparator:
             old,
             new,
             review=not metadata,
-            category="metadata" if metadata else "behavior",
+            category=FindingCategory.METADATA if metadata else FindingCategory.BEHAVIOR,
         )
 
     def parameters(
@@ -202,7 +204,7 @@ class Comparator:
                 old.get("default", MISSING),
                 new.get("default", MISSING),
                 review=True,
-                category="behavior",
+                category=FindingCategory.BEHAVIOR,
             )
         self.type_change(
             old["type"],
@@ -560,7 +562,7 @@ class Comparator:
                 old.get("class"),
                 new.get("class"),
                 review=True,
-                category="behavior",
+                category=FindingCategory.BEHAVIOR,
             )
         for plural, direction in (("inputs", "input"), ("outputs", "output")):
             self.parameters(
@@ -586,7 +588,7 @@ class Comparator:
                 old.get("cwlVersion", MISSING),
                 new.get("cwlVersion", MISSING),
                 review=True,
-                category="environment",
+                category=FindingCategory.ENVIRONMENT,
             )
         excluded = {
             "id",
@@ -645,7 +647,7 @@ class Comparator:
                     "New mandatory execution requirement may exclude existing runners.",
                     a,
                     b,
-                    category="environment",
+                    category=FindingCategory.ENVIRONMENT,
                 )
             else:
                 self.residual(a, b, location)
@@ -664,7 +666,7 @@ class Comparator:
                     a,
                     b,
                     review=True,
-                    category="behavior",
+                    category=FindingCategory.BEHAVIOR,
                 )
             else:
                 self.residual(a, b, location)
@@ -729,10 +731,17 @@ def baseline(
         else:
             comparator.process(old[name], new[name], path)
     findings = comparator.findings
-    minimum = max((Bump[f.minimum_bump.upper()] for f in findings), default=Bump.NONE)
+    minimum = max(
+        (f.minimum_bump for f in findings),
+        key=BUMP_PRIORITY.__getitem__,
+        default=Bump.NONE,
+    )
+    classified_bump = Bump(review_bump) if review_bump is not None else None
     reviews = any(f.review_required for f in findings)
     effective = (
-        max(minimum, Bump[review_bump.upper()]) if reviews and review_bump else minimum
+        max(minimum, classified_bump, key=BUMP_PRIORITY.__getitem__)
+        if reviews and classified_bump is not None
+        else minimum
     )
     unresolved = reviews and review_bump is None
     minimum_version = increment(old_version, minimum)
@@ -740,11 +749,11 @@ def baseline(
     return BaselineReport(
         previous_version=str(old_version),
         current_version=str(new_version),
-        minimum_bump=minimum.label,
+        minimum_bump=minimum,
         minimum_version=str(minimum_version),
         suggested_version=str(suggestion) if suggestion is not None else None,
         review_required=unresolved,
-        review_bump=review_bump,
+        review_bump=classified_bump,
         declared_version_sufficient=not unresolved
         and new_version >= (suggestion or minimum_version),
         findings=findings,
