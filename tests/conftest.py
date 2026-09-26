@@ -1,18 +1,26 @@
 from __future__ import annotations
 
 import json
+from typing import TYPE_CHECKING
 
 from cwl_utils.parser import load_document_by_string
-from cwl_utils.parser.cwl_v1_2 import LoadingOptions
+from pydantic import AnyUrl
+from schema_salad.runtime import LoadingOptions
 from transpiler_mate.api import SoftwareApplication, TranspilerContext
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class Resolver:
-    def __init__(self, context=None):
-        self.context = context
-        self.calls = []
+    """Record source resolution and return a configured context or failure."""
 
-    def resolve(self, location):
+    def __init__(self, context: TranspilerContext | Exception | None = None) -> None:
+        self.context = context
+        self.calls: list[str] = []
+
+    def resolve(self, location: str) -> TranspilerContext:
+        """Resolve a fixture location or raise the configured exception."""
         self.calls.append(location)
         if isinstance(self.context, Exception):
             raise self.context
@@ -21,7 +29,10 @@ class Resolver:
         return self.context
 
 
-def process(name="main", *, inputs=None, outputs=None, **extra):
+def process(
+    name: str = "main", /, *, inputs: object = None, outputs: object = None, **extra: object
+) -> dict[str, object]:
+    """Build a raw workflow fixture for parsing by cwl-utils."""
     return dict(
         id=name,
         **{"class": "Workflow"},
@@ -33,12 +44,13 @@ def process(name="main", *, inputs=None, outputs=None, **extra):
 
 
 def context(
-    processes=None,
+    processes: Sequence[object] | None = None,
     *,
-    version="1.2.3",
-    source="file:///previous/workflow.cwl",
-    resolver=None,
-):
+    version: str = "1.2.3",
+    source: str = "file:///previous/workflow.cwl",
+    resolver: Resolver | None = None,
+) -> TranspilerContext:
+    """Parse workflow fixtures into a context with synthetic source locations."""
     if processes is None:
         processes = [process()]
     data = {"cwlVersion": "v1.2", "$graph": processes}
@@ -54,7 +66,7 @@ def context(
     # generated field rather than mocking the TranspilerContext itself.
     metadata = SoftwareApplication.model_construct(software_version=version)
     return TranspilerContext(
-        source=source,
+        source=AnyUrl(source),
         metadata=metadata,
         document={p.id: p for p in doms},
         resolver=resolver or Resolver(),

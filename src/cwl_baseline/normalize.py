@@ -1,4 +1,4 @@
-# Copyright 2026 Transpiler-Mate
+# Copyright 2026 Terradue
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,8 +50,7 @@ def identifier(value: str, source: str) -> str:
 
 def normalize(value: Any, source: str, key: str = "") -> Any:
     if (
-        key
-        in {"default", "arguments", "expression", "valueFrom", "outputEval", "hints"}
+        key in {"default", "arguments", "expression", "valueFrom", "outputEval", "hints"}
         or "://" in key
     ):
         return value
@@ -102,13 +101,18 @@ def local_fields(values: Any) -> dict[str, Any]:
     return result
 
 
+def _register_schema(value: dict[str, Any], result: dict[str, Any]) -> None:
+    """Register a named schema, rejecting conflicting definitions."""
+    name = value["name"]
+    if name in result and result[name] != value:
+        raise PluginFailureError(f"Conflicting named schema: {name!r}")
+    result[name] = value
+
+
 def _collect_schemas(value: Any, result: dict[str, Any]) -> None:
     if isinstance(value, dict):
         if value.get("type") in ("record", "enum") and "name" in value:
-            name = value["name"]
-            if name in result and result[name] != value:
-                raise PluginFailureError(f"Conflicting named schema: {name!r}")
-            result[name] = value
+            _register_schema(value, result)
         for key, child in value.items():
             # Embedded processes have their own requirement scope.
             if key != "run":
@@ -126,9 +130,7 @@ def schemas(process: dict[str, Any]) -> dict[str, Any]:
     # reference only when it denotes exactly one schema in this Process.
     aliases: dict[str, list[Any]] = {}
     for name, schema in result.items():
-        aliases.setdefault(name.rsplit("/", 1)[-1].rsplit("#", 1)[-1], []).append(
-            schema
-        )
+        aliases.setdefault(name.rsplit("/", 1)[-1].rsplit("#", 1)[-1], []).append(schema)
     for name, candidates in aliases.items():
         if len(candidates) == 1 and name not in result:
             result[name] = candidates[0]

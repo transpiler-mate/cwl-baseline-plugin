@@ -1,4 +1,4 @@
-# Copyright 2026 Transpiler-Mate
+# Copyright 2026 Terradue
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ def assignable(
     target_definitions: dict[str, Any],
     active: frozenset[tuple[str, str]] = frozenset(),
 ) -> bool | None:
+    """Return whether every source value fits the target, or None when unknown."""
     source = resolve(source, source_definitions)
     target = resolve(target, target_definitions)
     pair = (json.dumps(source, sort_keys=True), json.dumps(target, sort_keys=True))
@@ -77,15 +78,20 @@ def assignable(
         return all_results([check(item, target) for item in source])
     if isinstance(target, list):
         return any_result([check(source, item) for item in target])
-    if any(
-        isinstance(value, str) and value not in PRIMITIVES for value in (source, target)
-    ):
+    if isinstance(source, dict) and isinstance(target, dict):
+        return _structured_assignable(source, target, source_definitions, target_definitions, check)
+    return _scalar_assignable(source, target)
+
+
+def _scalar_assignable(source: object, target: object) -> bool | None:
+    """Compare primitive types, including numeric promotions and unresolved names."""
+    if any(isinstance(value, str) and value not in PRIMITIVES for value in (source, target)):
         return None
     if target == "Any":
         # CWL Any is a non-null value. Null must be included explicitly.
-        return source != "null"
+        return not isinstance(source, str) or source != "null"
     if source == "Any":
-        return target == "Any"
+        return isinstance(target, str) and target == "Any"
     if isinstance(source, str) and isinstance(target, str):
         promotions = {
             "int": {"long", "float", "double"},
@@ -93,11 +99,7 @@ def assignable(
             "float": {"double"},
         }
         return source == target or target in promotions.get(source, set())
-    if not isinstance(source, dict) or not isinstance(target, dict):
-        return False
-    return _structured_assignable(
-        source, target, source_definitions, target_definitions, check
-    )
+    return False
 
 
 def _structured_assignable(
@@ -116,20 +118,29 @@ def _structured_assignable(
         # Keep scoped enum symbol identity; namespaces are meaningful.
         return set(source["symbols"]) <= set(target["symbols"])
     if kind == "record":
-        source_fields = local_fields(source.get("fields", []))
-        target_fields = local_fields(target.get("fields", []))
-        results: list[bool | None] = []
-        for name, field in target_fields.items():
-            if name not in source_fields:
-                results.append(omittable(field, target_definitions))
-            else:
-                old = source_fields[name]
-                if omittable(old, source_definitions) and not omittable(
-                    field, target_definitions
-                ):
-                    results.append(False)
-                results.append(check(old["type"], field["type"]))
-        # Extra record fields are structurally tolerated; behavioral effects
-        # of field removal/default changes are reported separately.
-        return all_results(results)
+        return _record_assignable(source, target, source_definitions, target_definitions, check)
     return None
+
+
+def _record_assignable(
+    source: dict[str, Any],
+    target: dict[str, Any],
+    source_definitions: dict[str, Any],
+    target_definitions: dict[str, Any],
+    check: Callable[[Any, Any], bool | None],
+) -> bool | None:
+    """Check target record fields and omission guarantees against the source."""
+    source_fields = local_fields(source.get("fields", []))
+    target_fields = local_fields(target.get("fields", []))
+    results: list[bool | None] = []
+    for name, field in target_fields.items():
+        if name not in source_fields:
+            results.append(omittable(field, target_definitions))
+        else:
+            old = source_fields[name]
+            if omittable(old, source_definitions) and not omittable(field, target_definitions):
+                results.append(False)
+            results.append(check(old["type"], field["type"]))
+    # Extra record fields are structurally tolerated; behavioral effects
+    # of field removal/default changes are reported separately.
+    return all_results(results)

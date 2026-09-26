@@ -1,4 +1,4 @@
-# Copyright 2026 Transpiler-Mate
+# Copyright 2026 Terradue
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,9 +38,7 @@ class BaselineOptions(BaseModel):
         min_length=1,
         description="Previous release location accepted by the context resolver",
     )
-    output: Path = Field(
-        default=Path("baseline.json"), description="JSON report destination"
-    )
+    output: Path = Field(default=Path("baseline.json"), description="JSON report destination")
     check: bool = Field(
         default=False,
         description="Fail if review is unresolved or the declared version is insufficient",
@@ -62,14 +60,10 @@ def baseline_plugin(context: TranspilerContext, options: BaselineOptions) -> Non
     except PluginError:
         raise
     except Exception as error:
-        raise PluginExecutionError(
-            "Could not resolve the previous CWL release"
-        ) from error
+        raise PluginExecutionError("Could not resolve the previous CWL release") from error
     report = baseline(previous, context, review_bump=options.review_bump)
     try:
-        options.output.write_text(
-            report.model_dump_json(indent=2) + "\n", encoding="utf-8"
-        )
+        options.output.write_text(report.model_dump_json(indent=2) + "\n", encoding="utf-8")
     except OSError as error:
         raise PluginExecutionError(
             f"Could not write baseline report to {options.output}"

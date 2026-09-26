@@ -1,4 +1,4 @@
-# Copyright 2026 Transpiler-Mate
+# Copyright 2026 Terradue
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass, replace
 from typing import Any, Literal
 
 import semver
@@ -68,41 +69,32 @@ def alternatives(
     return result
 
 
+@dataclass(frozen=True)
+class TypeComparison:
+    """Carry parameter variance, schema scopes, and recursion state during traversal."""
+
+    direction: str
+    old_defs: dict[str, Any]
+    new_defs: dict[str, Any]
+    active: frozenset[tuple[str, str]] = frozenset()
+
+
 class Comparator:
+    """Collect contract changes and behavioral review findings across processes."""
+
     def __init__(self) -> None:
         self.findings: list[Finding] = []
         self.covered_schemas: set[str] = set()
 
-    def add(
-        self,
-        rule: str,
-        path: str,
-        bump: Bump,
-        message: str,
-        before: Any = MISSING,
-        after: Any = MISSING,
-        *,
-        review: bool = False,
-        category: FindingCategory = FindingCategory.INTERFACE,
-    ) -> None:
-        self.findings.append(
-            Finding(
-                rule=rule,
-                path=path,
-                minimum_bump=bump,
-                message=message,
-                before=None if before is MISSING else before,
-                after=None if after is MISSING else after,
-                before_present=before is not MISSING,
-                after_present=after is not MISSING,
-                review_required=review,
-                category=category,
-            )
-        )
+    def add(self, finding: Finding, before: object = MISSING, after: object = MISSING) -> None:
+        """Append a finding, preserving the distinction between absent and null values."""
+        finding.before = None if before is MISSING else before
+        finding.after = None if after is MISSING else after
+        finding.before_present = before is not MISSING
+        finding.after_present = after is not MISSING
+        self.findings.append(finding)
 
-    def residual(
-        self, old: Any, new: Any, path: str, *, metadata: bool = False
-    ) -> None:
+    def residual(self, old: Any, new: Any, path: str, *, metadata: bool = False) -> None:
         """Account for every remaining changed field without guessing behavior."""
         if equal(old, new):
             return
@@ -116,16 +108,18 @@ class Comparator:
                 )
             return
         self.add(
-            "metadata.changed" if metadata else "behavior.changed",
-            path,
-            Bump.NONE,
-            "Descriptive metadata changed."
-            if metadata
-            else "Behavioral compatibility requires review.",
+            Finding(
+                rule="metadata.changed" if metadata else "behavior.changed",
+                path=path,
+                minimum_bump=Bump.NONE,
+                message="Descriptive metadata changed."
+                if metadata
+                else "Behavioral compatibility requires review.",
+                review_required=not metadata,
+                category=FindingCategory.METADATA if metadata else FindingCategory.BEHAVIOR,
+            ),
             old,
             new,
-            review=not metadata,
-            category=FindingCategory.METADATA if metadata else FindingCategory.BEHAVIOR,
         )
 
     def parameters(
@@ -133,99 +127,92 @@ class Comparator:
         old: dict[str, Any],
         new: dict[str, Any],
         path: str,
-        direction: str,
-        old_defs: dict[str, Any],
-        new_defs: dict[str, Any],
-        active: frozenset[tuple[str, str]] = frozenset(),
+        comparison: TypeComparison,
     ) -> None:
+        """Compare public parameters and recurse into shared declarations."""
         for name in sorted(old.keys() | new.keys()):
             location = path_join(path, name)
             if name not in new:
                 self.add(
-                    f"{direction}.removed",
-                    location,
-                    Bump.MAJOR,
-                    "Public parameter removed.",
+                    Finding(
+                        category=FindingCategory.INTERFACE,
+                        rule=f"{comparison.direction}.removed",
+                        path=location,
+                        minimum_bump=Bump.MAJOR,
+                        message="Public parameter removed.",
+                    ),
                     old[name],
                     MISSING,
                 )
             elif name not in old:
-                required = direction == "input" and not omittable(new[name], new_defs)
+                required = comparison.direction == "input" and not omittable(
+                    new[name], comparison.new_defs
+                )
                 self.add(
-                    f"{direction}.added",
-                    location,
-                    Bump.MAJOR if required else Bump.MINOR,
-                    "Required input added without a default."
-                    if required
-                    else "Public parameter added.",
+                    Finding(
+                        category=FindingCategory.INTERFACE,
+                        rule=f"{comparison.direction}.added",
+                        path=location,
+                        minimum_bump=Bump.MAJOR if required else Bump.MINOR,
+                        message="Required input added without a default."
+                        if required
+                        else "Public parameter added.",
+                    ),
                     MISSING,
                     new[name],
                 )
             else:
-                self.parameter(
-                    old[name],
-                    new[name],
-                    location,
-                    direction,
-                    old_defs,
-                    new_defs,
-                    active,
-                )
+                self.parameter(old[name], new[name], location, comparison)
 
     def parameter(
         self,
         old: dict[str, Any],
         new: dict[str, Any],
         path: str,
-        direction: str,
-        old_defs: dict[str, Any],
-        new_defs: dict[str, Any],
-        active: frozenset[tuple[str, str]],
+        comparison: TypeComparison,
     ) -> None:
+        """Compare omission, defaults, types, and constraints for a parameter."""
         if (
-            direction == "input"
-            and omittable(old, old_defs)
-            and not omittable(new, new_defs)
+            comparison.direction == "input"
+            and omittable(old, comparison.old_defs)
+            and not omittable(new, comparison.new_defs)
         ):
             self.add(
-                "input.omission_removed",
-                path,
-                Bump.MAJOR,
-                "The input can no longer be omitted.",
+                Finding(
+                    category=FindingCategory.INTERFACE,
+                    rule="input.omission_removed",
+                    path=path,
+                    minimum_bump=Bump.MAJOR,
+                    message="The input can no longer be omitted.",
+                ),
                 old,
                 new,
             )
         if not equal(old.get("default", MISSING), new.get("default", MISSING)):
             self.add(
-                "default.changed",
-                path_join(path, "default"),
-                Bump.NONE,
-                "A default changed; omitted/null inputs may behave differently.",
+                Finding(
+                    rule="default.changed",
+                    path=path_join(path, "default"),
+                    minimum_bump=Bump.NONE,
+                    message="A default changed; omitted/null inputs may behave differently.",
+                    review_required=True,
+                    category=FindingCategory.BEHAVIOR,
+                ),
                 old.get("default", MISSING),
                 new.get("default", MISSING),
-                review=True,
-                category=FindingCategory.BEHAVIOR,
             )
-        self.type_change(
-            old["type"],
-            new["type"],
-            path_join(path, "type"),
-            direction,
-            old_defs,
-            new_defs,
-            active,
-        )
+        self.type_change(old["type"], new["type"], path_join(path, "type"), comparison)
         self.formats(
             old.get("format", MISSING),
             new.get("format", MISSING),
             path_join(path, "format"),
-            direction,
+            comparison.direction,
         )
         self.secondary(
             old.get("secondaryFiles", []),
             new.get("secondaryFiles", []),
             path_join(path, "secondaryFiles"),
-            direction,
+            comparison.direction,
         )
         excluded = {"id", "name", "type", "default", "format", "secondaryFiles"}
         self.residual(
@@ -239,52 +226,47 @@ class Comparator:
         old: Any,
         new: Any,
         path: str,
-        direction: str,
-        old_defs: dict[str, Any],
-        new_defs: dict[str, Any],
-        active: frozenset[tuple[str, str]],
+        comparison: TypeComparison,
     ) -> None:
-        previous, current = resolve(old, old_defs), resolve(new, new_defs)
+        """Compare resolved types while guarding against recursive schema cycles."""
+        previous, current = resolve(old, comparison.old_defs), resolve(new, comparison.new_defs)
         for value in (previous, current):
             if isinstance(value, dict) and "name" in value:
                 self.covered_schemas.add(value["name"])
         pair = (repr(previous), repr(current))
-        if pair in active:
+        if pair in comparison.active:
             return
-        active = active | {pair}
+        comparison = replace(comparison, active=comparison.active | {pair})
+        self.union_members(previous, current, path, comparison)
+        if self.structured_type_change(previous, current, path, comparison):
+            return
+        self.type_compatibility(old, new, previous, current, path, comparison)
+
+    def union_members(
+        self, previous: object, current: object, path: str, comparison: TypeComparison
+    ) -> None:
+        """Compare matching union members, including nested constraints and metadata."""
         # Match union alternatives by schema kind/name to inspect nested
         # fields, defaults, and metadata as well as whole-union variance.
         if isinstance(previous, list) and isinstance(current, list):
-            a, b = alternatives(previous, old_defs), alternatives(current, new_defs)
+            a, b = (
+                alternatives(previous, comparison.old_defs),
+                alternatives(current, comparison.new_defs),
+            )
             if a is not None and b is not None:
                 for key in sorted(a.keys() & b.keys(), key=str):
                     self.type_change(
-                        a[key],
-                        b[key],
-                        path_join(path, str(key[1] or key[0])),
-                        direction,
-                        old_defs,
-                        new_defs,
-                        active,
+                        a[key], b[key], path_join(path, str(key[1] or key[0])), comparison
                     )
-        if self.structured_type_change(
-            previous, current, path, direction, old_defs, new_defs, active
-        ):
-            return
-        self.type_compatibility(
-            old, new, previous, current, path, direction, old_defs, new_defs
-        )
 
     def structured_type_change(
         self,
         previous: Any,
         current: Any,
         path: str,
-        direction: str,
-        old_defs: dict[str, Any],
-        new_defs: dict[str, Any],
-        active: frozenset[tuple[str, str]],
+        comparison: TypeComparison,
     ) -> bool:
+        """Compare nested record, array, and enum details."""
         # Even unchanged named references can denote changed definitions.
         if isinstance(previous, dict) and isinstance(current, dict):
             if previous.get("type") == current.get("type") == "record":
@@ -292,10 +274,7 @@ class Comparator:
                     local_fields(previous.get("fields", [])),
                     local_fields(current.get("fields", [])),
                     path_join(path, "fields"),
-                    direction,
-                    old_defs,
-                    new_defs,
-                    active,
+                    comparison,
                 )
                 self.residual(
                     {k: v for k, v in previous.items() if k not in {"fields", "type"}},
@@ -305,13 +284,7 @@ class Comparator:
                 return True
             if previous.get("type") == current.get("type") == "array":
                 self.type_change(
-                    previous["items"],
-                    current["items"],
-                    path_join(path, "items"),
-                    direction,
-                    old_defs,
-                    new_defs,
-                    active,
+                    previous["items"], current["items"], path_join(path, "items"), comparison
                 )
                 self.residual(
                     {k: v for k, v in previous.items() if k not in {"items", "type"}},
@@ -338,8 +311,7 @@ class Comparator:
             isinstance(previous, list)
             and isinstance(current, list)
             and (
-                alternatives(previous, old_defs) is None
-                or alternatives(current, new_defs) is None
+                alternatives(previous, old_defs) is None or alternatives(current, new_defs) is None
             )
             and sorted(json.dumps(v, sort_keys=True) for v in previous)
             != sorted(json.dumps(v, sort_keys=True) for v in current)
@@ -352,84 +324,93 @@ class Comparator:
         previous: Any,
         current: Any,
         path: str,
-        direction: str,
-        old_defs: dict[str, Any],
-        new_defs: dict[str, Any],
+        comparison: TypeComparison,
     ) -> None:
-        if previous == current and old_defs == new_defs:
+        """Report directional type variance and uncertain union constraints."""
+        if previous == current and comparison.old_defs == comparison.new_defs:
             return
-        forward = assignable(old, new, old_defs, new_defs)
-        backward = assignable(new, old, new_defs, old_defs)
-        compatible = forward if direction == "input" else backward
+        forward = assignable(old, new, comparison.old_defs, comparison.new_defs)
+        backward = assignable(new, old, comparison.new_defs, comparison.old_defs)
+        compatible = forward if comparison.direction == "input" else backward
         if forward is True and backward is True:
             # Union order and equivalent syntaxes alone are not changes.
             # Ambiguous complex alternative matching still needs review.
-            if self.ambiguous_union_changed(previous, current, old_defs, new_defs):
+            if self.ambiguous_union_changed(
+                previous, current, comparison.old_defs, comparison.new_defs
+            ):
                 self.add(
-                    "type.union_details",
-                    path,
-                    Bump.NONE,
-                    "Review changed complex union alternatives.",
+                    Finding(
+                        category=FindingCategory.INTERFACE,
+                        rule="type.union_details",
+                        path=path,
+                        minimum_bump=Bump.NONE,
+                        message="Review changed complex union alternatives.",
+                        review_required=True,
+                    ),
                     previous,
                     current,
-                    review=True,
                 )
-            return
-        if (
-            previous == current
-            and forward is None
-            and backward is None
-            and old_defs == new_defs
-        ):
             return
         if compatible is False:
             self.add(
-                f"{direction}.type_incompatible",
-                path,
-                Bump.MAJOR,
-                "Accepted input values narrowed."
-                if direction == "input"
-                else "Possible output values widened.",
+                Finding(
+                    category=FindingCategory.INTERFACE,
+                    rule=f"{comparison.direction}.type_incompatible",
+                    path=path,
+                    minimum_bump=Bump.MAJOR,
+                    message="Accepted input values narrowed."
+                    if comparison.direction == "input"
+                    else "Possible output values widened.",
+                ),
                 previous,
                 current,
             )
         elif compatible is None:
             self.add(
-                "type.unknown",
-                path,
-                Bump.NONE,
-                "Type compatibility could not be established.",
+                Finding(
+                    category=FindingCategory.INTERFACE,
+                    rule="type.unknown",
+                    path=path,
+                    minimum_bump=Bump.NONE,
+                    message="Type compatibility could not be established.",
+                    review_required=True,
+                ),
                 previous,
                 current,
-                review=True,
             )
         else:
             self.add(
-                f"{direction}.type_compatible",
-                path,
-                Bump.MINOR if direction == "input" else Bump.PATCH,
-                "Accepted input values widened."
-                if direction == "input"
-                else "Output type narrowed; verify the behavioral contract.",
+                Finding(
+                    category=FindingCategory.INTERFACE,
+                    rule=f"{comparison.direction}.type_compatible",
+                    path=path,
+                    minimum_bump=Bump.MINOR if comparison.direction == "input" else Bump.PATCH,
+                    message="Accepted input values widened."
+                    if comparison.direction == "input"
+                    else "Output type narrowed; verify the behavioral contract.",
+                    review_required=comparison.direction == "output",
+                ),
                 previous,
                 current,
-                review=direction == "output",
             )
         # Constraints/defaults inside union members cannot be inferred solely
         # from assignability. Report a review when complex union schemas change.
         if (isinstance(previous, list) or isinstance(current, list)) and (
-            old_defs != new_defs
+            comparison.old_defs != comparison.new_defs
             or self.complex_union(previous)
             or self.complex_union(current)
         ):
             self.add(
-                "type.union_details",
-                path,
-                Bump.NONE,
-                "Review constraints/defaults inside changed complex union members.",
+                Finding(
+                    category=FindingCategory.INTERFACE,
+                    rule="type.union_details",
+                    path=path,
+                    minimum_bump=Bump.NONE,
+                    message="Review constraints/defaults inside changed complex union members.",
+                    review_required=True,
+                ),
                 previous,
                 current,
-                review=True,
             )
 
     @staticmethod
@@ -444,9 +425,7 @@ class Comparator:
             if value is MISSING:
                 return None
             items = value if isinstance(value, list) else [value]
-            if not all(
-                isinstance(v, str) and "$(" not in v and "${" not in v for v in items
-            ):
+            if not all(isinstance(v, str) and "$(" not in v and "${" not in v for v in items):
                 raise ValueError
             return set(items)
 
@@ -454,13 +433,16 @@ class Comparator:
             previous, current = values(old), values(new)
         except ValueError:
             self.add(
-                "format.expression",
-                path,
-                Bump.NONE,
-                "File format expression changed.",
+                Finding(
+                    category=FindingCategory.INTERFACE,
+                    rule="format.expression",
+                    path=path,
+                    minimum_bump=Bump.NONE,
+                    message="File format expression changed.",
+                    review_required=True,
+                ),
                 old,
                 new,
-                review=True,
             )
             return
         if previous == current:
@@ -478,30 +460,33 @@ class Comparator:
             else (current is None and previous is not None)
         )
         self.add(
-            "format.changed",
-            path,
-            (Bump.MINOR if direction == "input" else Bump.PATCH)
-            if compatible
-            else Bump.MAJOR
-            if incompatible
-            else Bump.NONE,
-            "File format constraint changed; nontrivial ontology relationships require review.",
+            Finding(
+                category=FindingCategory.INTERFACE,
+                rule="format.changed",
+                path=path,
+                minimum_bump=(Bump.MINOR if direction == "input" else Bump.PATCH)
+                if compatible
+                else Bump.MAJOR
+                if incompatible
+                else Bump.NONE,
+                message="File format constraint changed; nontrivial ontology relationships require review.",
+                review_required=not compatible and not incompatible,
+            ),
             old,
             new,
-            review=not compatible and not incompatible,
         )
 
     def secondary(self, old: Any, new: Any, path: str, direction: str) -> None:
         def patterns(values: Any) -> dict[str, Any]:
             result = {}
             for value in values:
-                value = {"pattern": value} if isinstance(value, str) else value
-                pattern = value["pattern"]
+                entry = {"pattern": value} if isinstance(value, str) else value
+                pattern = entry["pattern"]
                 if pattern in result:
                     raise PluginFailureError(
                         f"Duplicate secondary file pattern at {path}: {pattern!r}"
                     )
-                result[pattern] = value.get("required", direction == "input")
+                result[pattern] = entry.get("required", direction == "input")
             return result
 
         previous, current = patterns(old), patterns(new)
@@ -516,13 +501,16 @@ class Comparator:
                 or any(v is not MISSING and not isinstance(v, bool) for v in (a, b))
             ):
                 self.add(
-                    "secondary_files.expression",
-                    location,
-                    Bump.NONE,
-                    "Secondary-file expression changed.",
+                    Finding(
+                        category=FindingCategory.INTERFACE,
+                        rule="secondary_files.expression",
+                        path=location,
+                        minimum_bump=Bump.NONE,
+                        message="Secondary-file expression changed.",
+                        review_required=True,
+                    ),
                     a,
                     b,
-                    review=True,
                 )
                 continue
             breaking = (
@@ -531,12 +519,15 @@ class Comparator:
                 else (a is True and b is not True)
             )
             self.add(
-                "secondary_files.changed",
-                location,
-                Bump.MAJOR if breaking else Bump.MINOR,
-                "Required file constraint/guarantee changed."
-                if breaking
-                else "Secondary-file contract changed compatibly.",
+                Finding(
+                    category=FindingCategory.INTERFACE,
+                    rule="secondary_files.changed",
+                    path=location,
+                    minimum_bump=Bump.MAJOR if breaking else Bump.MINOR,
+                    message="Required file constraint/guarantee changed."
+                    if breaking
+                    else "Secondary-file contract changed compatibly.",
+                ),
                 a,
                 b,
             )
@@ -546,32 +537,35 @@ class Comparator:
         old_defs, new_defs = schemas(old), schemas(new)
         if old.get("id") != new.get("id"):
             self.add(
-                "process.id_changed",
-                path_join(path, "id"),
-                Bump.MAJOR,
-                "Public Process identifier changed.",
+                Finding(
+                    category=FindingCategory.INTERFACE,
+                    rule="process.id_changed",
+                    path=path_join(path, "id"),
+                    minimum_bump=Bump.MAJOR,
+                    message="Public Process identifier changed.",
+                ),
                 old.get("id", MISSING),
                 new.get("id", MISSING),
             )
         if old.get("class") != new.get("class"):
             self.add(
-                "process.class_changed",
-                path_join(path, "class"),
-                Bump.NONE,
-                "Process implementation class changed; review execution semantics.",
+                Finding(
+                    rule="process.class_changed",
+                    path=path_join(path, "class"),
+                    minimum_bump=Bump.NONE,
+                    message="Process implementation class changed; review execution semantics.",
+                    review_required=True,
+                    category=FindingCategory.BEHAVIOR,
+                ),
                 old.get("class"),
                 new.get("class"),
-                review=True,
-                category=FindingCategory.BEHAVIOR,
             )
         for plural, direction in (("inputs", "input"), ("outputs", "output")):
             self.parameters(
                 index(old.get(plural, [])),
                 index(new.get(plural, [])),
                 path_join(path, plural),
-                direction,
-                old_defs,
-                new_defs,
+                TypeComparison(direction, old_defs, new_defs),
             )
         self.requirements(
             old.get("requirements", []),
@@ -581,14 +575,16 @@ class Comparator:
         self.steps(old.get("steps", []), new.get("steps", []), path_join(path, "steps"))
         if old.get("cwlVersion") != new.get("cwlVersion"):
             self.add(
-                "environment.cwl_version",
-                path_join(path, "cwlVersion"),
-                Bump.NONE,
-                "CWL language version changed; verify runner support.",
+                Finding(
+                    rule="environment.cwl_version",
+                    path=path_join(path, "cwlVersion"),
+                    minimum_bump=Bump.NONE,
+                    message="CWL language version changed; verify runner support.",
+                    review_required=True,
+                    category=FindingCategory.ENVIRONMENT,
+                ),
                 old.get("cwlVersion", MISSING),
                 new.get("cwlVersion", MISSING),
-                review=True,
-                category=FindingCategory.ENVIRONMENT,
             )
         excluded = {
             "id",
@@ -627,27 +623,21 @@ class Comparator:
                             path_join(location, schema_name),
                         )
                 self.residual(
-                    {
-                        k: v
-                        for k, v in old_requirement.items()
-                        if k not in {"class", "types"}
-                    },
-                    {
-                        k: v
-                        for k, v in new_requirement.items()
-                        if k not in {"class", "types"}
-                    },
+                    {k: v for k, v in old_requirement.items() if k not in {"class", "types"}},
+                    {k: v for k, v in new_requirement.items() if k not in {"class", "types"}},
                     location,
                 )
             elif a is MISSING:
                 self.add(
-                    "environment.requirement_added",
-                    location,
-                    Bump.MAJOR,
-                    "New mandatory execution requirement may exclude existing runners.",
+                    Finding(
+                        rule="environment.requirement_added",
+                        path=location,
+                        minimum_bump=Bump.MAJOR,
+                        message="New mandatory execution requirement may exclude existing runners.",
+                        category=FindingCategory.ENVIRONMENT,
+                    ),
                     a,
                     b,
-                    category=FindingCategory.ENVIRONMENT,
                 )
             else:
                 self.residual(a, b, location)
@@ -659,14 +649,16 @@ class Comparator:
             location = path_join(path, name)
             if a is MISSING or b is MISSING:
                 self.add(
-                    "step.added" if a is MISSING else "step.removed",
-                    location,
-                    Bump.NONE,
-                    "Internal step changed; review observable behavior.",
+                    Finding(
+                        rule="step.added" if a is MISSING else "step.removed",
+                        path=location,
+                        minimum_bump=Bump.NONE,
+                        message="Internal step changed; review observable behavior.",
+                        review_required=True,
+                        category=FindingCategory.BEHAVIOR,
+                    ),
                     a,
                     b,
-                    review=True,
-                    category=FindingCategory.BEHAVIOR,
                 )
             else:
                 self.residual(a, b, location)
@@ -712,19 +704,25 @@ def baseline(
         path = path_join("/processes", name)
         if name not in new:
             comparator.add(
-                "process.removed",
-                path,
-                Bump.MAJOR,
-                "Public Process removed.",
+                Finding(
+                    category=FindingCategory.INTERFACE,
+                    rule="process.removed",
+                    path=path,
+                    minimum_bump=Bump.MAJOR,
+                    message="Public Process removed.",
+                ),
                 old[name],
                 MISSING,
             )
         elif name not in old:
             comparator.add(
-                "process.added",
-                path,
-                Bump.MINOR,
-                "Public Process added.",
+                Finding(
+                    category=FindingCategory.INTERFACE,
+                    rule="process.added",
+                    path=path,
+                    minimum_bump=Bump.MINOR,
+                    message="Public Process added.",
+                ),
                 MISSING,
                 new[name],
             )

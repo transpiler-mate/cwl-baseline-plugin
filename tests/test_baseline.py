@@ -1,20 +1,30 @@
 from __future__ import annotations
 
 import copy
+from typing import TYPE_CHECKING, Literal
 
 import pytest
 from conftest import context, process
 from transpiler_mate.api import PluginFailureError
 
 from cwl_baseline import baseline
-from cwl_baseline.models import Bump, FindingCategory
+from cwl_baseline.models import BaselineReport, Bump, FindingCategory
 from cwl_baseline.normalize import document
 from cwl_baseline.types import assignable
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
-def compare(old, new, **kwargs):
+
+def compare(
+    old: Sequence[object],
+    new: Sequence[object],
+    *,
+    review_bump: Literal["patch", "minor", "major"] | None = None,
+) -> BaselineReport:
+    """Compare parsed fixtures with distinct source locations."""
     return baseline(
-        context(old), context(new, source="file:///current/workflow.cwl"), **kwargs
+        context(old), context(new, source="file:///current/workflow.cwl"), review_bump=review_bump
     )
 
 
@@ -27,13 +37,13 @@ def compare(old, new, **kwargs):
         ([process()], [], "major"),
     ],
 )
-def test_process_inventory(old, new, bump):
+def test_process_inventory(old: Sequence[object], new: Sequence[object], bump: str) -> None:
     report = compare(old, new)
     assert report.minimum_bump == Bump(bump)
     assert report.suggested_version == {"major": "2.0.0", "minor": "1.3.0"}[bump]
 
 
-def test_same_document_different_source_and_order():
+def test_same_document_different_source_and_order() -> None:
     old = [process(inputs={"a": "string", "b": "int"}), process("other")]
     new = [process("other"), process(inputs={"b": "int", "a": "string"})]
     report = compare(old, new)
@@ -56,7 +66,7 @@ def test_same_document_different_source_and_order():
         ({"x": {"type": "string", "default": "yes"}}, {"x": "string"}, "major"),
     ],
 )
-def test_input_changes(old, new, bump):
+def test_input_changes(old: object, new: object, bump: str) -> None:
     report = compare([process(inputs=old)], [process(inputs=new)])
     assert report.minimum_bump == Bump(bump)
 
@@ -72,13 +82,13 @@ def test_input_changes(old, new, bump):
         ({"x": "long"}, {"x": "int"}, "patch", True),
     ],
 )
-def test_output_changes(old, new, bump, review):
+def test_output_changes(old: object, new: object, bump: str, review: bool) -> None:
     report = compare([process(outputs=old)], [process(outputs=new)])
     assert report.minimum_bump == Bump(bump)
     assert report.review_required == review
 
 
-def test_union_reordering():
+def test_union_reordering() -> None:
     report = compare(
         [process(inputs={"x": ["null", "string", "int"]})],
         [process(inputs={"x": ["int", "string", "null"]})],
@@ -87,7 +97,7 @@ def test_union_reordering():
 
 
 @pytest.mark.parametrize("direction,bump", [("inputs", "minor"), ("outputs", "major")])
-def test_enum_variance(direction, bump):
+def test_enum_variance(direction: str, bump: str) -> None:
     old = {"type": "enum", "name": "Mode", "symbols": ["one"]}
     new = {**old, "symbols": ["one", "two"]}
     report = compare(
@@ -97,8 +107,8 @@ def test_enum_variance(direction, bump):
     assert report.minimum_bump == Bump(bump)
 
 
-def test_named_schema_definition_change():
-    def workflow(symbols):
+def test_named_schema_definition_change() -> None:
+    def workflow(symbols: list[str]) -> dict[str, object]:
         return process(
             inputs={"x": "Mode"},
             requirements={
@@ -122,20 +132,16 @@ def test_named_schema_definition_change():
         ({"a": "string"}, {"a": "string?"}, "minor"),
     ],
 )
-def test_record_fields(old_fields, new_fields, bump):
-    def workflow(fields):
+def test_record_fields(old_fields: dict[str, str], new_fields: dict[str, str], bump: str) -> None:
+    def workflow(fields: dict[str, str]) -> dict[str, object]:
         return process(
-            inputs={
-                "x": {"type": {"type": "record", "name": "Settings", "fields": fields}}
-            }
+            inputs={"x": {"type": {"type": "record", "name": "Settings", "fields": fields}}}
         )
 
-    assert compare([workflow(old_fields)], [workflow(new_fields)]).minimum_bump == Bump(
-        bump
-    )
+    assert compare([workflow(old_fields)], [workflow(new_fields)]).minimum_bump == Bump(bump)
 
 
-def test_array_item_variance():
+def test_array_item_variance() -> None:
     report = compare(
         [process(inputs={"x": {"type": {"type": "array", "items": "long"}}})],
         [process(inputs={"x": {"type": {"type": "array", "items": "int"}}})],
@@ -144,7 +150,7 @@ def test_array_item_variance():
     assert any(f.path.endswith("/items") for f in report.findings)
 
 
-def test_default_change_is_not_silently_patch():
+def test_default_change_is_not_silently_patch() -> None:
     report = compare(
         [process(inputs={"x": {"type": "string", "default": "a"}})],
         [process(inputs={"x": {"type": "string", "default": "b"}})],
@@ -154,8 +160,8 @@ def test_default_change_is_not_silently_patch():
     assert report.suggested_version is None
 
 
-def test_defaults_containing_identifier_keys_are_literal():
-    def workflow(value):
+def test_defaults_containing_identifier_keys_are_literal() -> None:
+    def workflow(value: str) -> dict[str, object]:
         return process(inputs={"x": {"type": "Any", "default": {"id": value}}})
 
     report = compare(
@@ -165,14 +171,14 @@ def test_defaults_containing_identifier_keys_are_literal():
     assert any(f.rule == "default.changed" for f in report.findings)
 
 
-def test_doc_change_has_no_bump():
+def test_doc_change_has_no_bump() -> None:
     report = compare([process(doc="Old")], [process(doc="New")])
     assert report.minimum_bump == Bump.NONE
     assert not report.review_required
     assert report.findings[0].category == FindingCategory.METADATA
 
 
-def test_version_metadata_is_excluded():
+def test_version_metadata_is_excluded() -> None:
     a, b = context(), context(version="2.0.0", source="file:///current/workflow.cwl")
     old = next(iter(a.document.values()))
     new = next(iter(b.document.values()))
@@ -181,7 +187,7 @@ def test_version_metadata_is_excluded():
     assert baseline(a, b).findings == []
 
 
-def test_mandatory_requirement_added():
+def test_mandatory_requirement_added() -> None:
     report = compare(
         [process()], [process(requirements={"NetworkAccess": {"networkAccess": True}})]
     )
@@ -189,8 +195,8 @@ def test_mandatory_requirement_added():
     assert report.findings[0].category == FindingCategory.ENVIRONMENT
 
 
-def test_container_change_requires_review():
-    def workflow(image):
+def test_container_change_requires_review() -> None:
+    def workflow(image: str) -> dict[str, object]:
         return process(requirements={"DockerRequirement": {"dockerPull": image}})
 
     report = compare([workflow("image:1")], [workflow("image:2")])
@@ -201,7 +207,7 @@ def test_container_change_requires_review():
 @pytest.mark.parametrize(
     "review_bump,expected", [("patch", "1.2.4"), ("minor", "1.3.0"), ("major", "2.0.0")]
 )
-def test_review_policy(review_bump, expected):
+def test_review_policy(review_bump: Literal["patch", "minor", "major"], expected: str) -> None:
     old = process(requirements={"DockerRequirement": {"dockerPull": "image:1"}})
     new = process(requirements={"DockerRequirement": {"dockerPull": "image:2"}})
     report = compare([old], [new], review_bump=review_bump)
@@ -211,7 +217,7 @@ def test_review_policy(review_bump, expected):
     assert any(f.review_required for f in report.findings)
 
 
-def test_review_policy_never_downgrades_breaking_changes():
+def test_review_policy_never_downgrades_breaking_changes() -> None:
     report = compare(
         [process(inputs={"x": "string", "y": {"type": "string", "default": "a"}})],
         [process(inputs={"y": {"type": "string", "default": "b"}})],
@@ -231,7 +237,7 @@ def test_review_policy_never_downgrades_breaking_changes():
         ("outputs", [], [{"pattern": ".idx", "required": True}], "minor"),
     ],
 )
-def test_secondary_files(direction, old, new, bump):
+def test_secondary_files(direction: str, old: object, new: object, bump: str) -> None:
     a = process(**{direction: {"x": {"type": "File", "secondaryFiles": old}}})
     b = process(**{direction: {"x": {"type": "File", "secondaryFiles": new}}})
     assert compare([a], [b]).minimum_bump == Bump(bump)
@@ -246,8 +252,8 @@ def test_secondary_files(direction, old, new, bump):
         ("outputs", None, "https://example.org/tiff", "patch"),
     ],
 )
-def test_format_constraints(direction, old, new, bump):
-    def workflow(fmt):
+def test_format_constraints(direction: str, old: str | None, new: str | None, bump: str) -> None:
+    def workflow(fmt: str | None) -> dict[str, object]:
         p = {"type": "File"}
         if fmt:
             p["format"] = fmt
@@ -256,50 +262,46 @@ def test_format_constraints(direction, old, new, bump):
     assert compare([workflow(old)], [workflow(new)]).minimum_bump == Bump(bump)
 
 
-def test_different_format_iris_need_ontology_review():
+def test_different_format_iris_need_ontology_review() -> None:
     a = process(inputs={"x": {"type": "File", "format": "https://example.org/a"}})
     b = process(inputs={"x": {"type": "File", "format": "https://example.org/b"}})
     report = compare([a], [b])
     assert report.review_required
 
 
-def test_unknown_extension_is_reported():
+def test_unknown_extension_is_reported() -> None:
     a, b = context(), context()
-    next(iter(b.document.values())).extension_fields["https://example.org/contract"] = (
-        "changed"
-    )
+    next(iter(b.document.values())).extension_fields["https://example.org/contract"] = "changed"
     report = baseline(a, b)
     assert report.review_required
     assert "contract" in report.findings[0].path
 
 
 @pytest.mark.parametrize("version", ["1.2", "v1.2.3", "latest", ""])
-def test_invalid_version(version):
+def test_invalid_version(version: str) -> None:
     with pytest.raises(PluginFailureError, match="valid SemVer"):
         baseline(context(), context(version=version))
 
 
-def test_prerelease_baseline_rejected():
+def test_prerelease_baseline_rejected() -> None:
     with pytest.raises(PluginFailureError, match="prerelease"):
         baseline(context(version="1.2.3-dev.1"), context())
 
 
-def test_prerelease_current_is_not_release_ready():
-    report = baseline(
-        context(), context([process(), process("extra")], version="1.3.0-dev.1")
-    )
+def test_prerelease_current_is_not_release_ready() -> None:
+    report = baseline(context(), context([process(), process("extra")], version="1.3.0-dev.1"))
     assert report.suggested_version == "1.3.0"
     assert not report.declared_version_sufficient
 
 
-def test_bump_applied_once_not_per_change():
+def test_bump_applied_once_not_per_change() -> None:
     report = compare(
         [process(inputs={"a": "string", "b": "string"})], [process(), process("extra")]
     )
     assert report.suggested_version == "2.0.0"
 
 
-def test_no_mutation():
+def test_no_mutation() -> None:
     a, b = context(), context([process(inputs={"x": "string?"})])
     before = copy.deepcopy(document(b))
     baseline(a, b)
@@ -307,17 +309,17 @@ def test_no_mutation():
     assert b.metadata.software_version == "1.2.3"
 
 
-def test_any_excludes_null():
+def test_any_excludes_null() -> None:
     assert assignable("null", "Any", {}, {}) is False
     assert assignable("string", "Any", {}, {}) is True
     assert assignable("Any", ["null", "Any"], {}, {}) is True
 
 
-def test_unknown_named_type():
+def test_unknown_named_type() -> None:
     assert assignable("missing", "string", {}, {}) is None
 
 
-def test_recursive_named_record():
+def test_recursive_named_record() -> None:
     a = {
         "Node": {
             "name": "Node",
@@ -328,8 +330,8 @@ def test_recursive_named_record():
     assert assignable("Node", "Node", a, a) is True
 
 
-def test_named_input_enum_widening_produces_minor_suggestion():
-    def workflow(symbols):
+def test_named_input_enum_widening_produces_minor_suggestion() -> None:
+    def workflow(symbols: list[str]) -> dict[str, object]:
         return process(
             inputs={"x": "Mode"},
             requirements={
@@ -344,8 +346,8 @@ def test_named_input_enum_widening_produces_minor_suggestion():
     assert not report.review_required
 
 
-def test_record_inside_union_field_removal():
-    def workflow(fields):
+def test_record_inside_union_field_removal() -> None:
+    def workflow(fields: dict[str, str]) -> dict[str, object]:
         return process(
             inputs={
                 "x": {
@@ -357,14 +359,12 @@ def test_record_inside_union_field_removal():
             }
         )
 
-    report = compare(
-        [workflow({"a": "string", "b": "string?"})], [workflow({"a": "string"})]
-    )
+    report = compare([workflow({"a": "string", "b": "string?"})], [workflow({"a": "string"})])
     assert report.minimum_bump == Bump.MAJOR
 
 
-def test_record_metadata_inside_union_is_not_lost():
-    def workflow(default):
+def test_record_metadata_inside_union_is_not_lost() -> None:
+    def workflow(default: str) -> dict[str, object]:
         return process(
             inputs={
                 "x": {
@@ -385,8 +385,8 @@ def test_record_metadata_inside_union_is_not_lost():
     assert any(f.rule == "metadata.changed" for f in report.findings)
 
 
-def test_enum_documentation_change_is_reported():
-    def workflow(doc):
+def test_enum_documentation_change_is_reported() -> None:
+    def workflow(doc: str) -> dict[str, object]:
         return process(
             inputs={
                 "x": {
@@ -406,8 +406,8 @@ def test_enum_documentation_change_is_reported():
     assert report.minimum_bump == Bump.NONE
 
 
-def test_steps_are_private_and_order_independent():
-    def step(name):
+def test_steps_are_private_and_order_independent() -> None:
+    def step(name: str) -> dict[str, object]:
         return {
             "id": name,
             "in": [],
@@ -423,16 +423,16 @@ def test_steps_are_private_and_order_independent():
     old = process()
     old["steps"] = [step("a"), step("b")]
     new = copy.deepcopy(old)
-    new["steps"].reverse()
+    new["steps"] = [step("b"), step("a")]
     assert compare([old], [new]).findings == []
-    new["steps"].pop()
+    new["steps"] = [step("b")]
     report = compare([old], [new])
     assert report.review_required
     assert report.minimum_bump == Bump.NONE
     assert any(f.rule == "step.removed" for f in report.findings)
 
 
-def test_step_wiring_and_embedded_run_are_reported():
+def test_step_wiring_and_embedded_run_are_reported() -> None:
     old = process(inputs={"x": "string", "y": "string"})
     old["steps"] = [
         {
@@ -448,15 +448,26 @@ def test_step_wiring_and_embedded_run_are_reported():
         }
     ]
     new = copy.deepcopy(old)
-    new["steps"][0]["in"]["arg"] = "y"
-    new["steps"][0]["run"]["baseCommand"] = "printf"
+    new["steps"] = [
+        {
+            "id": "run",
+            "in": {"arg": "y"},
+            "out": [],
+            "run": {
+                "class": "CommandLineTool",
+                "inputs": {"arg": "string"},
+                "outputs": [],
+                "baseCommand": "printf",
+            },
+        }
+    ]
     report = compare([old], [new])
     assert report.review_required
     assert any("baseCommand" in f.path for f in report.findings)
     assert any(f.path.endswith("/in") for f in report.findings)
 
 
-def test_command_argument_order_matters():
+def test_command_argument_order_matters() -> None:
     old = {
         "id": "tool",
         "class": "CommandLineTool",
@@ -471,20 +482,16 @@ def test_command_argument_order_matters():
     assert any(f.path.endswith("/arguments") for f in report.findings)
 
 
-def test_parameter_ids_keep_scopes():
+def test_parameter_ids_keep_scopes() -> None:
     a, b = (
-        context(
-            [process("a", inputs={"x": "string"}), process("b", inputs={"x": "string"})]
-        ),
-        context(
-            [process("a", inputs={"x": "string"}), process("b", inputs={"x": "int"})]
-        ),
+        context([process("a", inputs={"x": "string"}), process("b", inputs={"x": "string"})]),
+        context([process("a", inputs={"x": "string"}), process("b", inputs={"x": "int"})]),
     )
     report = baseline(a, b)
     assert all(f.path.startswith("/processes/b/") for f in report.findings)
 
 
-def test_missing_vs_null_default_presence_flags():
+def test_missing_vs_null_default_presence_flags() -> None:
     # cwl-utils generated serializers omit None defaults, so an explicit null
     # has the same effective contract as absence for a nullable parameter.
     old = process(inputs={"x": {"type": "string?"}})
@@ -496,7 +503,7 @@ def test_missing_vs_null_default_presence_flags():
     assert finding.after_present
 
 
-def test_boolean_default_differs_from_number():
+def test_boolean_default_differs_from_number() -> None:
     report = compare(
         [process(inputs={"x": {"type": "Any", "default": 1}})],
         [process(inputs={"x": {"type": "Any", "default": True}})],
@@ -506,14 +513,12 @@ def test_boolean_default_differs_from_number():
 
 
 @pytest.mark.parametrize("module_name", ["cwl_v1_0", "cwl_v1_1", "cwl_v1_2"])
-def test_version_specific_doms(module_name):
+def test_version_specific_doms(module_name: str) -> None:
     import importlib
 
     module = importlib.import_module("cwl_utils.parser." + module_name)
     old = module.Workflow(id="main", inputs=[], outputs=[], steps=[])
-    input_class = (
-        getattr(module, "WorkflowInputParameter", None) or module.InputParameter
-    )
+    input_class = getattr(module, "WorkflowInputParameter", None) or module.InputParameter
     new = module.Workflow(
         id="main",
         inputs=[input_class(id="main/x", type_=["null", "string"])],

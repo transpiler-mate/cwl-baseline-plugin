@@ -115,9 +115,7 @@ class BaselineReport(BaseModel):
     """
     Explicit global classification of changes requiring review, or null if none was supplied.
     """
-    declared_version_sufficient: Annotated[
-        bool, Field(title="Declared Version Sufficient")
-    ]
+    declared_version_sufficient: Annotated[bool, Field(title="Declared Version Sufficient")]
     """
     True when review is resolved and the current version meets or exceeds the suggested version.
     """
