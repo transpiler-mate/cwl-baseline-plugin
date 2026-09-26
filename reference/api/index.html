@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://Transpiler-Mate.github.io/cwl-baseline-plugin/reference/api/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>API - CWL Baseline Transpiler Mate Plugin</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "API";
+        var mkdocs_page_input_path = "reference/api.md";
+        var mkdocs_page_url = "/cwl-baseline-plugin/reference/api/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> CWL Baseline Transpiler Mate Plugin
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tutorials/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../tutorials/first-steps/">First steps</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">How-to guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how-to/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how-to/install/">Install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how-to/use-cli/">Use the CLI</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">API</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#public-python-api">Public Python API</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#plugin-options">Plugin options</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#report-fields">Report fields</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#errors">Errors</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#implementation-reference">Implementation reference</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.compare.baseline">baseline</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.plugin.BaselineOptions">BaselineOptions</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.BaselineReport">BaselineReport</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.BaselineReport.current_version">current_version</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.BaselineReport.declared_version_sufficient">declared_version_sufficient</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.BaselineReport.findings">findings</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.BaselineReport.minimum_version">minimum_version</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.BaselineReport.previous_version">previous_version</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.BaselineReport.review_bump">review_bump</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.BaselineReport.review_required">review_required</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.BaselineReport.schema_version">schema_version</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.BaselineReport.suggested_version">suggested_version</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.Finding">Finding</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.Finding.after">after</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.Finding.after_present">after_present</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.Finding.before">before</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.Finding.before_present">before_present</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.Finding.message">message</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.Finding.path">path</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.Finding.review_required">review_required</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cwl_baseline.models.Finding.rule">rule</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Explanation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../explanation/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../explanation/compatibility/">Compatibility policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../explanation/architecture/">Architecture</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">CWL Baseline Transpiler Mate Plugin</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Reference</li>
+      <li class="breadcrumb-item active">API</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/Transpiler-Mate/cwl-baseline-plugin/edit/main/docs/reference/api.md">Edit on cwl-baseline-plugin</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <!--
+Copyright 2026 Terradue
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<h1 id="api-and-report-reference">API and report reference<a class="headerlink" href="#api-and-report-reference" title="Permanent link">&para;</a></h1>
+<h2 id="public-python-api">Public Python API<a class="headerlink" href="#public-python-api" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">cwl_baseline</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaselineOptions</span><span class="p">,</span> <span class="n">baseline</span><span class="p">,</span> <span class="n">baseline_plugin</span>
+
+<span class="c1"># previous and current are TranspilerContext objects supplied by the host.</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">baseline</span><span class="p">(</span><span class="n">previous</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="n">review_bump</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<span class="c1"># Resolve previous through current.resolver and write a report.</span>
+<span class="n">baseline_plugin</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+    <span class="n">current</span><span class="p">,</span>
+    <span class="n">BaselineOptions</span><span class="p">(</span><span class="n">previous</span><span class="o">=</span><span class="s2">"release.cwl"</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">"baseline.json"</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>baseline(previous, current, *, review_bump=None)</code> returns <code>BaselineReport</code>.
+<code>baseline_plugin.execute(context, options)</code> returns <code>None</code> and writes JSON.
+Both compare all Processes in the contexts, using each context's
+<code>metadata.software_version</code>.</p>
+<h2 id="plugin-options">Plugin options<a class="headerlink" href="#plugin-options" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type / default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>previous</code></td>
+<td>Nonempty string, required</td>
+<td>Passed unchanged to <code>context.resolver.resolve()</code></td>
+</tr>
+<tr>
+<td><code>output</code></td>
+<td>Path, <code>baseline.json</code></td>
+<td>Destination; parent directory must exist</td>
+</tr>
+<tr>
+<td><code>check</code></td>
+<td>Boolean, <code>false</code></td>
+<td>Fail on unresolved review or insufficient version</td>
+</tr>
+<tr>
+<td><code>review_bump</code></td>
+<td><code>patch</code>, <code>minor</code>, <code>major</code>, or <code>None</code></td>
+<td>Global classification of review findings</td>
+</tr>
+</tbody>
+</table>
+<p>Unknown options are rejected. The runtime CLI uses <code>--review-bump</code> for
+<code>review_bump</code> and <code>--check</code> / <code>--no-check</code> for <code>check</code>.</p>
+<h2 id="report-fields">Report fields<a class="headerlink" href="#report-fields" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>schema_version</code></td>
+<td>Report format version, currently <code>1.0</code></td>
+</tr>
+<tr>
+<td><code>previous_version</code>, <code>current_version</code></td>
+<td>Compared SemVer metadata</td>
+</tr>
+<tr>
+<td><code>minimum_bump</code></td>
+<td>Maximum static floor: <code>none</code>, <code>patch</code>, <code>minor</code>, or <code>major</code></td>
+</tr>
+<tr>
+<td><code>minimum_version</code></td>
+<td>Previous version incremented once by that floor</td>
+</tr>
+<tr>
+<td><code>suggested_version</code></td>
+<td>Version after review classification, or null while unresolved</td>
+</tr>
+<tr>
+<td><code>review_required</code></td>
+<td>Whether any review remains unresolved</td>
+</tr>
+<tr>
+<td><code>review_bump</code></td>
+<td>Supplied global classification, or null</td>
+</tr>
+<tr>
+<td><code>declared_version_sufficient</code></td>
+<td>Review is resolved and current version meets the suggestion</td>
+</tr>
+<tr>
+<td><code>findings</code></td>
+<td>Detailed changes contributing to the decision</td>
+</tr>
+</tbody>
+</table>
+<p>Each finding contains <code>rule</code>, <code>path</code>, <code>category</code>, <code>minimum_bump</code>,
+<code>review_required</code>, <code>message</code>, <code>before</code>, <code>after</code>, <code>before_present</code>, and
+<code>after_present</code>. Categories are <code>interface</code>, <code>environment</code>, <code>behavior</code>, and
+<code>metadata</code>. Paths use JSON-Pointer-style escaping in the normalized model.
+Presence flags distinguish missing values from null. Original finding review
+flags remain true after global classification for audit.</p>
+<p>The suggestion is a minimum release, not an instruction to downgrade an already
+higher version. See <a href="../../explanation/compatibility/">policy</a> for aggregation,
+prereleases, and the meaning of unresolved review.</p>
+<h2 id="errors">Errors<a class="headerlink" href="#errors" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>PluginFailureError</code>: domain failures, including invalid version metadata,
+  ambiguous/duplicate identities, unresolved review or insufficient version under <code>check</code>.</li>
+<li><code>PluginExecutionError</code>: unexpected resolver errors or report write failures.</li>
+<li>Resolver <code>PluginError</code> exceptions propagate unchanged.</li>
+<li>Invalid options raise Pydantic validation errors.</li>
+</ul>
+<p>Check failures occur after the report is written. Failures during resolution or
+comparison may prevent a report from being produced.</p>
+<h2 id="implementation-reference">Implementation reference<a class="headerlink" href="#implementation-reference" title="Permanent link">&para;</a></h2>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<a id="cwl_baseline.compare.baseline"></a>
+    <div class="doc doc-contents first">
+
+        <p>Compare all declared Processes, taking the maximum bump exactly once.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/cwl_baseline/compare.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">686</span>
+<span class="normal">687</span>
+<span class="normal">688</span>
+<span class="normal">689</span>
+<span class="normal">690</span>
+<span class="normal">691</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span>
+<span class="normal">695</span>
+<span class="normal">696</span>
+<span class="normal">697</span>
+<span class="normal">698</span>
+<span class="normal">699</span>
+<span class="normal">700</span>
+<span class="normal">701</span>
+<span class="normal">702</span>
+<span class="normal">703</span>
+<span class="normal">704</span>
+<span class="normal">705</span>
+<span class="normal">706</span>
+<span class="normal">707</span>
+<span class="normal">708</span>
+<span class="normal">709</span>
+<span class="normal">710</span>
+<span class="normal">711</span>
+<span class="normal">712</span>
+<span class="normal">713</span>
+<span class="normal">714</span>
+<span class="normal">715</span>
+<span class="normal">716</span>
+<span class="normal">717</span>
+<span class="normal">718</span>
+<span class="normal">719</span>
+<span class="normal">720</span>
+<span class="normal">721</span>
+<span class="normal">722</span>
+<span class="normal">723</span>
+<span class="normal">724</span>
+<span class="normal">725</span>
+<span class="normal">726</span>
+<span class="normal">727</span>
+<span class="normal">728</span>
+<span class="normal">729</span>
+<span class="normal">730</span>
+<span class="normal">731</span>
+<span class="normal">732</span>
+<span class="normal">733</span>
+<span class="normal">734</span>
+<span class="normal">735</span>
+<span class="normal">736</span>
+<span class="normal">737</span>
+<span class="normal">738</span>
+<span class="normal">739</span>
+<span class="normal">740</span>
+<span class="normal">741</span>
+<span class="normal">742</span>
+<span class="normal">743</span>
+<span class="normal">744</span>
+<span class="normal">745</span>
+<span class="normal">746</span>
+<span class="normal">747</span>
+<span class="normal">748</span>
+<span class="normal">749</span>
+<span class="normal">750</span>
+<span class="normal">751</span>
+<span class="normal">752</span>
+<span class="normal">753</span>
+<span class="normal">754</span>
+<span class="normal">755</span>
+<span class="normal">756</span>
+<span class="normal">757</span>
+<span class="normal">758</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">baseline</span><span class="p">(</span>
+    <span class="n">previous</span><span class="p">:</span> <span class="n">TranspilerContext</span><span class="p">,</span>
+    <span class="n">current</span><span class="p">:</span> <span class="n">TranspilerContext</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">review_bump</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"patch"</span><span class="p">,</span> <span class="s2">"minor"</span><span class="p">,</span> <span class="s2">"major"</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaselineReport</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Compare all declared Processes, taking the maximum bump exactly once."""</span>
+    <span class="n">old_version</span> <span class="o">=</span> <span class="n">parse_version</span><span class="p">(</span><span class="n">previous</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">software_version</span><span class="p">,</span> <span class="s2">"Previous"</span><span class="p">)</span>
+    <span class="n">new_version</span> <span class="o">=</span> <span class="n">parse_version</span><span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">software_version</span><span class="p">,</span> <span class="s2">"Current"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">old_version</span><span class="o">.</span><span class="n">prerelease</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PluginFailureError</span><span class="p">(</span>
+            <span class="s2">"The comparison baseline must be a released version, not a prerelease."</span>
+        <span class="p">)</span>
+    <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="o">=</span> <span class="n">document</span><span class="p">(</span><span class="n">previous</span><span class="p">),</span> <span class="n">document</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">old</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PluginFailureError</span><span class="p">(</span><span class="s2">"The previous document contains no Processes."</span><span class="p">)</span>
+    <span class="n">comparator</span> <span class="o">=</span> <span class="n">Comparator</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">old</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">|</span> <span class="n">new</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path_join</span><span class="p">(</span><span class="s2">"/processes"</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">new</span><span class="p">:</span>
+            <span class="n">comparator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="n">Finding</span><span class="p">(</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">FindingCategory</span><span class="o">.</span><span class="n">INTERFACE</span><span class="p">,</span>
+                    <span class="n">rule</span><span class="o">=</span><span class="s2">"process.removed"</span><span class="p">,</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+                    <span class="n">minimum_bump</span><span class="o">=</span><span class="n">Bump</span><span class="o">.</span><span class="n">MAJOR</span><span class="p">,</span>
+                    <span class="n">message</span><span class="o">=</span><span class="s2">"Public Process removed."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">old</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                <span class="n">MISSING</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">old</span><span class="p">:</span>
+            <span class="n">comparator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+                <span class="n">Finding</span><span class="p">(</span>
+                    <span class="n">category</span><span class="o">=</span><span class="n">FindingCategory</span><span class="o">.</span><span class="n">INTERFACE</span><span class="p">,</span>
+                    <span class="n">rule</span><span class="o">=</span><span class="s2">"process.added"</span><span class="p">,</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+                    <span class="n">minimum_bump</span><span class="o">=</span><span class="n">Bump</span><span class="o">.</span><span class="n">MINOR</span><span class="p">,</span>
+                    <span class="n">message</span><span class="o">=</span><span class="s2">"Public Process added."</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">MISSING</span><span class="p">,</span>
+                <span class="n">new</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">comparator</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">old</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">new</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="n">comparator</span><span class="o">.</span><span class="n">findings</span>
+    <span class="n">minimum</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">minimum_bump</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">findings</span><span class="p">),</span>
+        <span class="n">key</span><span class="o">=</span><span class="n">BUMP_PRIORITY</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Bump</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">classified_bump</span> <span class="o">=</span> <span class="n">Bump</span><span class="p">(</span><span class="n">review_bump</span><span class="p">)</span> <span class="k">if</span> <span class="n">review_bump</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">reviews</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">review_required</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">findings</span><span class="p">)</span>
+    <span class="n">effective</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">max</span><span class="p">(</span><span class="n">minimum</span><span class="p">,</span> <span class="n">classified_bump</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">BUMP_PRIORITY</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reviews</span> <span class="ow">and</span> <span class="n">classified_bump</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="n">minimum</span>
+    <span class="p">)</span>
+    <span class="n">unresolved</span> <span class="o">=</span> <span class="n">reviews</span> <span class="ow">and</span> <span class="n">review_bump</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="n">minimum_version</span> <span class="o">=</span> <span class="n">increment</span><span class="p">(</span><span class="n">old_version</span><span class="p">,</span> <span class="n">minimum</span><span class="p">)</span>
+    <span class="n">suggestion</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">unresolved</span> <span class="k">else</span> <span class="n">increment</span><span class="p">(</span><span class="n">old_version</span><span class="p">,</span> <span class="n">effective</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">BaselineReport</span><span class="p">(</span>
+        <span class="n">previous_version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">old_version</span><span class="p">),</span>
+        <span class="n">current_version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">new_version</span><span class="p">),</span>
+        <span class="n">minimum_bump</span><span class="o">=</span><span class="n">minimum</span><span class="p">,</span>
+        <span class="n">minimum_version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">minimum_version</span><span class="p">),</span>
+        <span class="n">suggested_version</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">suggestion</span><span class="p">)</span> <span class="k">if</span> <span class="n">suggestion</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">review_required</span><span class="o">=</span><span class="n">unresolved</span><span class="p">,</span>
+        <span class="n">review_bump</span><span class="o">=</span><span class="n">classified_bump</span><span class="p">,</span>
+        <span class="n">declared_version_sufficient</span><span class="o">=</span><span class="ow">not</span> <span class="n">unresolved</span>
+        <span class="ow">and</span> <span class="n">new_version</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">suggestion</span> <span class="ow">or</span> <span class="n">minimum_version</span><span class="p">),</span>
+        <span class="n">findings</span><span class="o">=</span><span class="n">findings</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="cwl_baseline.plugin.BaselineOptions"></a>
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/cwl_baseline/plugin.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">BaselineOptions</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">"forbid"</span><span class="p">)</span>
+
+    <span class="n">previous</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Previous release location accepted by the context resolver"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">"baseline.json"</span><span class="p">),</span> <span class="n">description</span><span class="o">=</span><span class="s2">"JSON report destination"</span><span class="p">)</span>
+    <span class="n">check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Fail if review is unresolved or the declared version is insufficient"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">review_bump</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"patch"</span><span class="p">,</span> <span class="s2">"minor"</span><span class="p">,</span> <span class="s2">"major"</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Explicit classification of all changes requiring behavioral review"</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="cwl_baseline.models.BaselineReport"></a>
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>CWL baseline comparison report. Required fields and defaults follow cwl_baseline.models.BaselineReport; the plugin serializes all fields, including defaults.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/cwl_baseline/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">BaselineReport</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    CWL baseline comparison report. Required fields and defaults follow cwl_baseline.models.BaselineReport; the plugin serializes all fields, including defaults.</span>
+<span class="sd">    """</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span>
+        <span class="n">extra</span><span class="o">=</span><span class="s2">"allow"</span><span class="p">,</span>
+        <span class="n">populate_by_name</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">schema_version</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Schema Version"</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">"1.0"</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Report format version, currently 1.0.</span>
+<span class="sd">    """</span>
+    <span class="n">previous_version</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Previous Version"</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Semantic version of the previous released baseline.</span>
+<span class="sd">    """</span>
+    <span class="n">current_version</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Current Version"</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Declared semantic version of the current release.</span>
+<span class="sd">    """</span>
+    <span class="n">minimum_bump</span><span class="p">:</span> <span class="n">Bump</span>
+    <span class="n">minimum_version</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Minimum Version"</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Previous version incremented once by minimum_bump.</span>
+<span class="sd">    """</span>
+    <span class="n">suggested_version</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Suggested Version"</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Minimum release version after review classification, or null while review remains unresolved.</span>
+<span class="sd">    """</span>
+    <span class="n">review_required</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Review Required"</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Whether any behavioral review remains unresolved.</span>
+<span class="sd">    """</span>
+    <span class="n">review_bump</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Bump</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Review Bump"</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Explicit global classification of changes requiring review, or null if none was supplied.</span>
+<span class="sd">    """</span>
+    <span class="n">declared_version_sufficient</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Declared Version Sufficient"</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    True when review is resolved and the current version meets or exceeds the suggested version.</span>
+<span class="sd">    """</span>
+    <span class="n">findings</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">],</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Findings"</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Detailed changes contributing to the comparison; defaults to an empty list in the model.</span>
+<span class="sd">    """</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.BaselineReport.current_version" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">current_version</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.BaselineReport.current_version" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Declared semantic version of the current release.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.BaselineReport.declared_version_sufficient" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">declared_version_sufficient</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.BaselineReport.declared_version_sufficient" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>True when review is resolved and the current version meets or exceeds the suggested version.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.BaselineReport.findings" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">findings</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.BaselineReport.findings" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Detailed changes contributing to the comparison; defaults to an empty list in the model.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.BaselineReport.minimum_version" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">minimum_version</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.BaselineReport.minimum_version" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Previous version incremented once by minimum_bump.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.BaselineReport.previous_version" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">previous_version</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.BaselineReport.previous_version" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Semantic version of the previous released baseline.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.BaselineReport.review_bump" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">review_bump</span> <span class="o">=</span> <span class="kc">None</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.BaselineReport.review_bump" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Explicit global classification of changes requiring review, or null if none was supplied.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.BaselineReport.review_required" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">review_required</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.BaselineReport.review_required" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Whether any behavioral review remains unresolved.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.BaselineReport.schema_version" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">schema_version</span> <span class="o">=</span> <span class="s1">'1.0'</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.BaselineReport.schema_version" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Report format version, currently 1.0.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.BaselineReport.suggested_version" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">suggested_version</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.BaselineReport.suggested_version" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Minimum release version after review classification, or null while review remains unresolved.</p>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<a id="cwl_baseline.models.Finding"></a>
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>One detected change in the normalized CWL public contract.</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/cwl_baseline/models.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Finding</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    One detected change in the normalized CWL public contract.</span>
+<span class="sd">    """</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span>
+        <span class="n">extra</span><span class="o">=</span><span class="s2">"allow"</span><span class="p">,</span>
+        <span class="n">populate_by_name</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Rule"</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Identifier of the comparison rule that produced this finding.</span>
+<span class="sd">    """</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Path"</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Location in the normalized model, using JSON-Pointer-style escaping.</span>
+<span class="sd">    """</span>
+    <span class="n">category</span><span class="p">:</span> <span class="n">FindingCategory</span>
+    <span class="n">minimum_bump</span><span class="p">:</span> <span class="n">Bump</span>
+    <span class="n">review_required</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Review Required"</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Whether this finding needs behavioral review; retained for auditing after global review classification.</span>
+<span class="sd">    """</span>
+    <span class="n">message</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Message"</span><span class="p">)]</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Human-readable explanation of the change.</span>
+<span class="sd">    """</span>
+    <span class="n">before</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Before"</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Previous JSON value; null also represents an absent value when before_present is false.</span>
+<span class="sd">    """</span>
+    <span class="n">after</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"After"</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Current JSON value; null also represents an absent value when after_present is false.</span>
+<span class="sd">    """</span>
+    <span class="n">before_present</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"Before Present"</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Whether the previous value exists, distinguishing absence from explicit null.</span>
+<span class="sd">    """</span>
+    <span class="n">after_present</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">"After Present"</span><span class="p">)]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Whether the current value exists, distinguishing absence from explicit null.</span>
+<span class="sd">    """</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.Finding.after" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">after</span> <span class="o">=</span> <span class="kc">None</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.Finding.after" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Current JSON value; null also represents an absent value when after_present is false.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.Finding.after_present" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">after_present</span> <span class="o">=</span> <span class="kc">True</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.Finding.after_present" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Whether the current value exists, distinguishing absence from explicit null.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.Finding.before" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">before</span> <span class="o">=</span> <span class="kc">None</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.Finding.before" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Previous JSON value; null also represents an absent value when before_present is false.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.Finding.before_present" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">before_present</span> <span class="o">=</span> <span class="kc">True</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.Finding.before_present" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Whether the previous value exists, distinguishing absence from explicit null.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.Finding.message" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">message</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.Finding.message" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Human-readable explanation of the change.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.Finding.path" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">path</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.Finding.path" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Location in the normalized model, using JSON-Pointer-style escaping.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.Finding.review_required" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">review_required</span> <span class="o">=</span> <span class="kc">False</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.Finding.review_required" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Whether this finding needs behavioral review; retained for auditing after global review classification.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="cwl_baseline.models.Finding.rule" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">rule</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#cwl_baseline.models.Finding.rule" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Identifier of the comparison rule that produced this finding.</p>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../" class="btn btn-neutral float-left" title="Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../explanation/" class="btn btn-neutral float-right" title="Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/Transpiler-Mate/cwl-baseline-plugin" class="fa fa-code-fork" style="color: #fcfcfc"> cwl-baseline-plugin</a>
+        </span>
+    
+    
+      <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../explanation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
