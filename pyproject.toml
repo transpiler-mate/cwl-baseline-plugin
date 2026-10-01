@@ -45,7 +45,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "transpiler-mate-api>=1.0.0",
+  "transpiler-mate-api>=1.0.1",
   "semver>=3.0.4,<4",
   "loguru==0.7.3"
 ]
